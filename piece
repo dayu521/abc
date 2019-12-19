@@ -1,0 +1,11 @@
+命名
+        小驼峰命名:第一个单词小写,其他单词首字母大写,myNewFunction
+        大驼峰命名:所有单词首字母大写,MyBadClass
+    类名:大驼峰命名.例如:class MyClass
+    成员变量:小驼峰命名,例如:int myInt
+    成员函数:小驼峰命名.例如:myFunction()
+    普通函数:小驼峰命名,同上
+    函数参数:小驼峰命名,但后缀_.例如:myParameterName_
+    函数本地变量:小驼峰命名,但前缀数字.例如7myTempValue
+pixmap与widget的大小
+    使用滚动区域根据pixmap与widget的大小决定滚动条是否出现.
