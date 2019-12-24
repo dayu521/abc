@@ -13,3 +13,4 @@ SettingPane::~SettingPane()
     delete ui;
 }
 
+

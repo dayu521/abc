@@ -18,6 +18,8 @@ public:
 private:
     QWidget * parent;
     Ui::Form *ui;
+
+    // QWidget interface
 };
 
 #endif // FORM_H

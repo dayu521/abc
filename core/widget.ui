@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>670</width>
-    <height>364</height>
+    <width>1000</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Widget</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_2">
+  <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,3">
    <item>
     <widget class="QWidget" name="leftContainerWidget" native="true">
      <property name="minimumSize">
@@ -30,23 +30,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QComboBox" name="menuList">
-        <item>
-         <property name="text">
-          <string>fuckasd</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>fasiajfnFaf 发安抚</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>阿诗丹顿按时</string>
-         </property>
-        </item>
-       </widget>
+       <widget class="QComboBox" name="menuList"/>
       </item>
       <item>
        <widget class="QTextBrowser" name="textBrowser">
@@ -75,8 +59,8 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>411</width>
-          <height>301</height>
+          <width>730</width>
+          <height>427</height>
          </rect>
         </property>
         <widget class="MyScreen" name="rightContainerWidget" native="true">
@@ -93,68 +77,70 @@ p, li { white-space: pre-wrap; }
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <property name="spacing">
-        <number>6</number>
-       </property>
-       <property name="sizeConstraint">
-        <enum>QLayout::SetMinimumSize</enum>
-       </property>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="startBtn">
-         <property name="text">
-          <string>开始</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="initBtn">
-         <property name="text">
-          <string>初始化</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="dataSettingBtn">
-         <property name="text">
-          <string>参数设定</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="moreControlBtn">
-         <property name="text">
-          <string>更多操作</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+      <widget class="QWidget" name="rigthBottom" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinimumSize</enum>
+        </property>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="startBtn">
+          <property name="text">
+           <string>开始</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="initBtn">
+          <property name="text">
+           <string>初始化</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="dataSettingBtn">
+          <property name="text">
+           <string>参数设定</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="moreControlBtn">
+          <property name="text">
+           <string>更多操作</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
      </item>
     </layout>
    </item>
