@@ -16,6 +16,7 @@ INCLUDEPATH += . core
 
 # Input
 HEADERS += rbtreesim.h \
+           core/common.h \
            core/myscreen.h \
            core/setting.h \
            core/simulator.h \

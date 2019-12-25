@@ -49,30 +49,29 @@ p, li { white-space: pre-wrap; }
    </item>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMinAndMaxSize</enum>
+     </property>
      <item>
       <widget class="QScrollArea" name="rightContainerWidgetWrap">
-       <property name="widgetResizable">
-        <bool>true</bool>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
        </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>false</bool>
+       </property>
+       <widget class="MyScreen" name="rightContainerWidget">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>730</width>
-          <height>427</height>
+          <width>710</width>
+          <height>407</height>
          </rect>
         </property>
-        <widget class="MyScreen" name="rightContainerWidget" native="true">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>250</width>
-           <height>250</height>
-          </rect>
-         </property>
-        </widget>
        </widget>
       </widget>
      </item>

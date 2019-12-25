@@ -2,27 +2,23 @@
 #include<QPainter>
 #include<QPixmap>
 #include<QtDebug>
+#include"simulator.h"
 
 MyScreen::MyScreen(QWidget *parent) : QWidget(parent)
 {
-//    setAutoFillBackground(true);
 }
 
-void MyScreen::paint(QPixmap && x_)
+void MyScreen::setSource(Simulator *x_)
 {
-//    QPainter p_(&pix);
-//    p_.drawPixmap(0,0,x_);
-    pix=x_;
-    update();
+    if(pix!=x_->getPixmap()){
+        pix=x_->getPixmap();
+        resize(pix->size());
+    }
 }
 
 void MyScreen::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
-    p.drawPixmap(0,0,pix);
+    p.drawPixmap(0,0,*pix);
 }
 
-void MyScreen::resizeEvent(QResizeEvent *event)
-{
-
-}

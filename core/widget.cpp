@@ -1,18 +1,12 @@
 #include "widget.h"
 #include "ui_widget.h"
-#include<QMenuBar>
-#include<QHBoxLayout>
-#include<QScrollArea>
-#include<QLabel>
 #include<QTimer>
 #include<QDebug>
 #include<QPainter>
-#include<QPushButton>
 #include<QAction>
-#include<QList>
 #include"simulator.h"
-#include<QPoint>
 #include<QStackedWidget>
+#include<QKeyEvent>
 
 
 Widget::Widget(QWidget *parent)
@@ -23,6 +17,7 @@ Widget::Widget(QWidget *parent)
     setContextMenuPolicy(Qt::ActionsContextMenu);
     initUI();
     initAction();
+    loadCnf();
     prepare();
 }
 
@@ -32,9 +27,11 @@ void Widget::setSimulator(std::initializer_list<std::shared_ptr<Simulator> > lis
     for(auto x_:list_){
         simContainer.append(x_);
         int index_=dataInputPane->addWidget(x_->getUi());
-        ui->menuList->insertItem(index_,x_->getName());
+        ui->menuList->insertItem(index_,x_->getName());//第一次也将触发currentIndexChanged信号
     }
     setWindowTitle(simContainer[currentIndex]->getName());
+    currentSimulator=simContainer[currentIndex].get();
+    ui->rightContainerWidget->setSource(currentSimulator);
 }
 
 Widget::~Widget()
@@ -47,13 +44,14 @@ Widget::~Widget()
 void Widget::loadCnf()
 {
     settings.animationInterval=500;
+    settings.canvasWidth=800;
+    settings.canvasHeight=500;
 }
 
 void Widget::initUI()
 {
-    globalSetting=new SettingPane();
+    globalSetting=new SettingPane(settings,this);
     dataInputPane=new QStackedWidget();
-
 }
 
 void Widget::prepareNewSimulation()
@@ -117,23 +115,64 @@ void Widget::prepare()
     animationTimer=new QTimer(this);
     animationTimer->setInterval(settings.animationInterval);
     connect(animationTimer,&QTimer::timeout,[=](){
-        ui->rightContainerWidget->paint(simContainer[currentIndex]->simulation());
+
     });
 
     connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[=](int x){
         currentIndex=x;
+        currentSimulator=simContainer[x].get();
+        //相应的控制面板变更
         dataInputPane->setCurrentIndex(x);
         dataInputPane->resize(dataInputPane->currentWidget()->size());
-        setWindowTitle(simContainer[x]->getName());
+        //画布换新的simulator的pixmap
+        ui->rightContainerWidget->setSource(currentSimulator);
+        setWindowTitle(currentSimulator->getName());
     });
-    ui->menuList->setCurrentIndex(currentIndex);
-    dataInputPane->setCurrentIndex(currentIndex);
+
+    throttleTimer=new QTimer(this);
+    throttleTimer->setSingleShot(true);
+    connect(throttleTimer,&QTimer::timeout,[=](){
+        auto size_=currentSimulator->calculationPixSize();
+        if((ui->rightContainerWidget->size()-size_).isValid())
+            ;
+        else
+            ui->rightContainerWidget->resize(size_);
+        ui->rightContainerWidget->setSource(currentSimulator);
+        currentSimulator->currentSnapshot();
+        ui->rightContainerWidget->update();
+    });
+    connect(this,&Widget::changeElementsSize,[=](int x_){
+        currentSimulator->makeElementsBig(x_);
+        throttleTimer->start(200);
+    });
 
 }
 
 void Widget::resizeEvent(QResizeEvent *event)
 {
 
+}
+
+void Widget::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key()==Qt::Key_Control)
+        isctl=true;
+    //下面可以先统一测试isctl
+    else if(event->key()==Qt::Key_Plus){
+        if(isctl){
+            emit changeElementsSize(factor);
+        }
+    }else if(event->key()==Qt::Key_Minus){
+        if(isctl){
+            emit changeElementsSize(-factor);
+        }
+    }
+}
+
+void Widget::keyReleaseEvent(QKeyEvent *event)
+{
+    if(event->key()==Qt::Key_Control)
+        isctl=false;
 }
 
 

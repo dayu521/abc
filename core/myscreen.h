@@ -1,18 +1,19 @@
 #ifndef MYSCREEN_H
 #define MYSCREEN_H
 #include<QWidget>
+class Simulator;
 
 class MyScreen : public QWidget
 {
     Q_OBJECT
 public:
     explicit MyScreen(QWidget *parent = nullptr);
-    void paint(QPixmap &&);
+    void setSource(Simulator *);
     void setHeight(int h){
-        height=h;
+        pixheight=h;
     }
     void setWidth(int w){
-        width=w;
+        pixwidth=w;
     }
 signals:
 
@@ -21,11 +22,10 @@ public slots:
     // QWidget interface
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
-    virtual void resizeEvent(QResizeEvent *event) override;
 private:
-    int height;
-    int width;
-    QPixmap pix{100,200};
+    int pixheight;
+    int pixwidth;
+    QPixmap * pix;
 };
 
 #endif // MYSCREEN_H
