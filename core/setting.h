@@ -17,7 +17,8 @@ public:
     explicit SettingPane(Configuration & cfg, Widget *parent = nullptr);
     ~SettingPane();
     virtual void showEvent(QShowEvent *event) override;
-
+signals:
+    void changeAnimationSpeed(int x_);
 private:
     Configuration &settings;
     Widget * parent;

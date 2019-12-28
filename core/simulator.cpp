@@ -10,7 +10,8 @@ Simulator::Simulator(QVector<int> *properties_):properties(properties_)
 void Simulator::makeElementsBig(int factor)
 {
     std::for_each(properties->begin(),properties->end(),[=](int & x_){
-        x_+=x_*factor/10;
+//        x_+=x_*factor/10;
+        x_+=factor;
     });
 }
 

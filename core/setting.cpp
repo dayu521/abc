@@ -10,9 +10,7 @@ SettingPane::SettingPane(Configuration &cfg, Widget *parent) :
 {
     ui->setupUi(this);
     //动画间隔设置
-    connect(ui->animationSpeed,&QSlider::valueChanged,[=](int x_){
-        this->settings.animationInterval=x_;
-    });
+    connect(ui->animationSpeed,&QSlider::valueChanged,this,&SettingPane::changeAnimationSpeed);
     //长宽设置
     ui->widthAndHeightLedit->setPlaceholderText("长:宽");
     ui->widthAndHeightLedit->setValidator(new QRegExpValidator(QRegExp("\\d+:\\d+"),this));

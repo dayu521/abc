@@ -16,6 +16,7 @@ void MyScreen::setSource(Simulator *x_)
     }
 }
 
+//有风险,第一次未初始化
 void MyScreen::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);

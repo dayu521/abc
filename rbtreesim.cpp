@@ -5,8 +5,10 @@
 
 RBtreeSim::RBtreeSim(QString name_):Simulator(&elementProperties),name(name_)
 {
-    for(int i=0;i<pixCount;i++)
+    for(int i=0;i<pixCount;i++){
         pix[i]=new QPixmap(pixSize[i],pixSize[i]);
+        pix[i]->fill(Qt::white);
+    }
     panel=new QWidget;
     panel->setAutoFillBackground(true);
     auto pp=panel->palette();
@@ -36,14 +38,14 @@ QString RBtreeSim::getName() const
     return name;
 }
 
-void RBtreeSim::startSimulate()
+void RBtreeSim::produceSimulateData()
 {
 
 }
 
-void RBtreeSim::clearSimulate()
+void RBtreeSim::clearSimulateData()
 {
-
+    pix[currentPixIndex]->fill(Qt::white);
 }
 
 QPixmap *RBtreeSim::getPixmap() const
@@ -56,20 +58,31 @@ void RBtreeSim::setPmpSize() const
 
 }
 
-void RBtreeSim::currentSnapshot() const
+void RBtreeSim::currentSnapshot(int n_) const
 {
+//    pix[currentPixIndex]->fill(Qt::white);
+//    QPainter p_(pix[currentPixIndex]);
+//    p_.setBrush(Qt::red);
+//    auto r_=elementProperties[0];
+//    for(int i=0;i<k;i++){
+//        p_.drawEllipse(elementProperties[0],elementProperties[0],r_,r_);
+//        p_.translate(r_,0);
+//    }
+    n_--;
     pix[currentPixIndex]->fill(Qt::white);
     QPainter p_(pix[currentPixIndex]);
     p_.setBrush(Qt::red);
-    auto r_=elementProperties[0];
-    for(int i=0;i<k;i++){
-        p_.drawEllipse(elementProperties[0],elementProperties[0],r_,r_);
-        p_.translate(r_,0);
-    }
+    int y=n_/10;
+    int x=n_-y*10;
+    for(int i=0;i<y;i++)
+        for(int j=0;j<10;j++)
+            p_.drawRect(j*elementProperties[0],i*elementProperties[0],elementProperties[0],elementProperties[0]);
+    for(int i=0;i<=x;i++)
+        p_.drawRect(i*elementProperties[0],y*elementProperties[0],elementProperties[0],elementProperties[0]);
 }
 
 //此函数有待重构
-QSize RBtreeSim::calculationPixSize()
+QSize RBtreeSim::calculationMinPixSize()
 {
     int w_=elementProperties[1]+elementProperties[0]*k;
     int h_=elementProperties[1]+elementProperties[2]*(k-1);
@@ -80,15 +93,18 @@ QSize RBtreeSim::calculationPixSize()
     return {w_,h_};
 }
 
-void RBtreeSim::nextFrame() const
+void RBtreeSim::nextFrame(int n_)
 {
    QPainter p_(pix[currentPixIndex]);
    p_.setBrush(Qt::red);
-   auto r_=elementProperties[0];
-   for(int i=0;i<k;i++){
-       p_.drawEllipse(elementProperties[0],elementProperties[0],r_,r_);
-       p_.translate(r_,0);
-   }
+   int y=n_/10;
+   int x=n_-y*10;
+   p_.drawRect(x*elementProperties[0],y*elementProperties[0],elementProperties[0],elementProperties[0]);
+}
+
+int RBtreeSim::currentIndex() const
+{
+
 }
 
 void RBtreeSim::setPixmapsize()

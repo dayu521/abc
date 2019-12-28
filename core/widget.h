@@ -7,12 +7,14 @@
 #include"myscreen.h"
 #include"setting.h"
 #include"common.h"
+#include<QPointer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
 QT_END_NAMESPACE
 
 class QScrollArea;
+class QMenu;
 class Simulator;
 class QStackedWidget;
 
@@ -40,26 +42,34 @@ private:
     void prepareNewSimulation();
     void initAction();
     void prepare();
+    void changeSimulator(int index_=0);
+    void showMsg();
 
 private:
     Ui::Widget *ui;
+    QPointer<QMenu> menu;
     Configuration settings;
-    SettingPane * globalSetting;
-    QStackedWidget * dataInputPane;
+    QPointer<SettingPane> globalSetting;
+    QPointer<QStackedWidget> dataInputPane;     //容纳各个simulator各自的输入和控制面板
     int currentIndex=0;
     Simulator * currentSimulator;
     QVector<std::shared_ptr<Simulator>> simContainer;
-    QTimer * animationTimer;
-    QTimer * throttleTimer;     //节流计时器
+    QPointer<QTimer> animationTimer;
+    QPointer<QTimer> throttleTimer;     //节流计时器
     bool isctl;
-    QPixmap  pp{300,300};
-    int factor=1;
+    int factor=5;   
+    Mode mode;
+    int mm=0;
 
     // QWidget interface
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void keyPressEvent(QKeyEvent *event) override;
     virtual void keyReleaseEvent(QKeyEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual bool eventFilter(QObject *object, QEvent *event) override;
+    virtual void contextMenuEvent(QContextMenuEvent *event) override;
+    virtual void closeEvent(QCloseEvent *event) override;
 private slots:
     void on_startBtn_clicked();
 signals:

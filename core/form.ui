@@ -18,15 +18,15 @@
     <rect>
      <x>212</x>
      <y>54</y>
-     <width>84</width>
+     <width>131</width>
      <height>20</height>
     </rect>
    </property>
    <property name="minimum">
-    <number>100</number>
+    <number>0</number>
    </property>
    <property name="maximum">
-    <number>9999</number>
+    <number>2000</number>
    </property>
    <property name="singleStep">
     <number>10</number>

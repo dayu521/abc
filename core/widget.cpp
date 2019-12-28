@@ -7,6 +7,8 @@
 #include"simulator.h"
 #include<QStackedWidget>
 #include<QKeyEvent>
+#include<QMenu>
+#include<QActionGroup>
 
 
 Widget::Widget(QWidget *parent)
@@ -14,7 +16,7 @@ Widget::Widget(QWidget *parent)
     , ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    setContextMenuPolicy(Qt::ActionsContextMenu);
+//    setContextMenuPolicy(Qt::ActionsContextMenu);
     initUI();
     initAction();
     loadCnf();
@@ -51,7 +53,13 @@ void Widget::loadCnf()
 void Widget::initUI()
 {
     globalSetting=new SettingPane(settings,this);
+    globalSetting->installEventFilter(this);
+    connect(globalSetting,&SettingPane::changeAnimationSpeed,[=](int x_){
+        animationTimer->setInterval(x_);
+    });
+
     dataInputPane=new QStackedWidget();
+    dataInputPane->installEventFilter(this);
 }
 
 void Widget::prepareNewSimulation()
@@ -61,53 +69,73 @@ void Widget::prepareNewSimulation()
 
 void Widget::initAction()
 {
-    auto startAct=new QAction("开始模拟");
+    menu=new QMenu(this);
+
+    auto startAct=menu->addAction("开始模拟");
     connect(startAct,&QAction::triggered,[=](){
-        if(animationTimer->isActive()){
-            animationTimer->stop();
-            startAct->setText("开始模拟");
-        }else {
-            animationTimer->start();
-            startAct->setText("暂停");
-        }
+        changeSimulator(currentIndex);
+        ui->textBrowser->append(QString("清除已模拟的数据"));
+        currentSimulator->produceSimulateData();
+        ui->textBrowser->append(QString("[%1]模拟完成").arg(currentSimulator->getName()));
     });
 
-    ui->leftContainerWidget->hide();
-    auto show_SideAct=new QAction("显示侧栏");
-    connect(show_SideAct,&QAction::triggered,[=](bool){
-        if(ui->leftContainerWidget->isHidden()){
-            ui->leftContainerWidget->show();
-            show_SideAct->setText("隐藏侧栏");
-        } else{
-            ui->leftContainerWidget->hide();
-            show_SideAct->setText("显示侧栏");
-        }
+    auto restart_Act=menu->addAction("重新放映");
+    connect(restart_Act,&QAction::triggered,[=](){
+        mm=0;
+        currentSimulator->clearSimulateData();
+        if(mode==Automatic)
+            animationTimer->start();
     });
 
     ui->rigthBottom->hide();
-    auto ac2_=new QAction("显示底栏");
-    connect(ac2_,&QAction::triggered,[=](bool){
-        if(ui->rigthBottom->isHidden()){
-            ui->rigthBottom->show();
-            ac2_->setText("隐藏底栏");
-        } else{
-            ui->rigthBottom->hide();
-            ac2_->setText("显示底栏");
-        }
-    });
+//    auto ac2_=new QAction("显示底栏");
+//    connect(ac2_,&QAction::triggered,[=](bool){
+//        if(ui->rigthBottom->isHidden()){
+//            ui->rigthBottom->show();
+//            ac2_->setText("隐藏底栏");
+//        } else{
+//            ui->rigthBottom->hide();
+//            ac2_->setText("显示底栏");
+//        }
+//    });
 
-    auto ac3_=new QAction("配置设置");
-    connect(ac3_,&QAction::triggered,[=](bool){
+    auto set_Act=menu->addAction("配置设置");
+    connect(set_Act,&QAction::triggered,[=](bool){
         globalSetting->move(width()/2-globalSetting->width()/2,height()/2-globalSetting->height()/2);
         globalSetting->show();
     });
-    auto data_InputAct=new QAction("数据设定面板");
+    auto data_InputAct=menu->addAction("数据设定面板");
     connect(data_InputAct,&QAction::triggered,[=](bool){
         dataInputPane->setCurrentIndex(ui->menuList->currentIndex());
         dataInputPane->show();
     });
 
-    addActions({startAct,data_InputAct,show_SideAct,ac2_,ac3_});
+    auto menu_sub1=menu->addMenu("其他设置");
+    auto autop_Act=menu_sub1->addAction("自动放映");
+    autop_Act->setCheckable(true);
+    autop_Act->setChecked(true);
+    mode=Automatic;
+    connect(autop_Act,&QAction::triggered,[=](bool checked){
+        if(!checked){
+            mode=Manual;
+            ui->textBrowser->append("关闭自动放映:请使用 [ 和 ] 进行放映");
+        }else{
+            mode=Automatic;
+            ui->textBrowser->append("自动放映开启:请使用鼠标左键开始/暂停");
+        }
+    });
+
+    //    ui->leftContainerWidget->hide();
+    auto show_SideAct=menu_sub1->addAction("显示侧栏");
+    show_SideAct->setCheckable(true);
+    show_SideAct->setChecked(true);
+    connect(show_SideAct,&QAction::triggered,[=](bool checked){
+        if(checked){
+            ui->leftContainerWidget->show();
+        } else
+            ui->leftContainerWidget->hide();
+    });
+    menu->addMenu(menu_sub1);
 }
 
 void Widget::prepare()
@@ -115,30 +143,30 @@ void Widget::prepare()
     animationTimer=new QTimer(this);
     animationTimer->setInterval(settings.animationInterval);
     connect(animationTimer,&QTimer::timeout,[=](){
-
+        if(mm>=100){
+            animationTimer->stop();
+            ui->textBrowser->append("放映完成");
+            return ;
+        }
+        currentSimulator->nextFrame(mm);
+        mm++;
+        ui->rightContainerWidget->update();
     });
 
     connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[=](int x){
-        currentIndex=x;
-        currentSimulator=simContainer[x].get();
-        //相应的控制面板变更
-        dataInputPane->setCurrentIndex(x);
-        dataInputPane->resize(dataInputPane->currentWidget()->size());
-        //画布换新的simulator的pixmap
-        ui->rightContainerWidget->setSource(currentSimulator);
-        setWindowTitle(currentSimulator->getName());
+        changeSimulator(x);
     });
 
     throttleTimer=new QTimer(this);
     throttleTimer->setSingleShot(true);
     connect(throttleTimer,&QTimer::timeout,[=](){
-        auto size_=currentSimulator->calculationPixSize();
+        auto size_=currentSimulator->calculationMinPixSize();
         if((ui->rightContainerWidget->size()-size_).isValid())
             ;
         else
             ui->rightContainerWidget->resize(size_);
         ui->rightContainerWidget->setSource(currentSimulator);
-        currentSimulator->currentSnapshot();
+        currentSimulator->currentSnapshot(mm);
         ui->rightContainerWidget->update();
     });
     connect(this,&Widget::changeElementsSize,[=](int x_){
@@ -146,6 +174,30 @@ void Widget::prepare()
         throttleTimer->start(200);
     });
 
+}
+
+void Widget::changeSimulator(int index_)
+{
+    currentIndex=index_;
+    currentSimulator=simContainer[index_].get();
+    currentSimulator->clearSimulateData();
+    animationTimer->stop();
+    //相应的控制面板变更
+    dataInputPane->setCurrentIndex(index_);
+    dataInputPane->resize(dataInputPane->currentWidget()->size());
+    //画布换新的simulator的pixmap
+    ui->rightContainerWidget->setSource(currentSimulator);
+    mm=0;
+    setWindowTitle(currentSimulator->getName());
+    showMsg();
+}
+
+void Widget::showMsg()
+{
+    auto cout=ui->textBrowser;
+    cout->clear();
+    cout->append(QString("当前模拟:[ %1 ]").arg(currentSimulator->getName()));
+    cout->append(QString("模式:[ 自动放映 ]"));
 }
 
 void Widget::resizeEvent(QResizeEvent *event)
@@ -173,6 +225,38 @@ void Widget::keyReleaseEvent(QKeyEvent *event)
 {
     if(event->key()==Qt::Key_Control)
         isctl=false;
+}
+
+void Widget::mousePressEvent(QMouseEvent *event)
+{
+    if(mode==Automatic){
+        if(event->button()==Qt::LeftButton){
+            animationTimer->isActive()?animationTimer->stop():animationTimer->start();
+            ui->textBrowser->append(animationTimer->isActive()?"开始":"暂停");
+            event->accept();
+        }
+    }
+}
+
+bool Widget::eventFilter(QObject *object, QEvent *event)
+{
+    if(event->type()==QEvent::KeyPress||event->type()==QEvent::KeyRelease){
+        QCoreApplication::sendEvent(this,event);
+        return true;
+    }
+    return false;
+}
+
+void Widget::contextMenuEvent(QContextMenuEvent *event)
+{
+    menu->exec(QCursor::pos()+QPoint(5,5));
+}
+
+void Widget::closeEvent(QCloseEvent *event)
+{
+    QWidget::closeEvent(event);
+//    QCoreApplication::quit();
+    qApp->closeAllWindows();
 }
 
 

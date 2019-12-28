@@ -2,6 +2,8 @@
 #define RBTREESIM_H
 #include"simulator.h"
 
+class Widget;
+
 class RBtreeSim : public Simulator
 {
     Q_OBJECT
@@ -12,13 +14,14 @@ public:
 public:
     virtual QWidget *getUi() override;
     virtual QString getName() const override;
-    virtual void startSimulate() override;
-    virtual void clearSimulate() override;
+    virtual void produceSimulateData() override;
+    virtual void clearSimulateData() override;
     virtual QPixmap *getPixmap() const override;
     virtual void setPmpSize() const override;
-    virtual void currentSnapshot() const override;
-    virtual QSize calculationPixSize() override;
-    virtual void nextFrame() const override;
+    virtual void currentSnapshot(int n_) const override;
+    virtual QSize calculationMinPixSize() override;
+    virtual void nextFrame(int n_) override;
+    virtual int currentIndex() const override;
 public slots:
     void setPixmapsize();
 private:
@@ -36,5 +39,6 @@ private:
     int pixSize[pixCount]{1000,2000,4000};
     int currentPixIndex=0;
     int k;
+    int mm=100;
 };
 #endif // RBTREESIM_H
