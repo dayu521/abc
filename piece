@@ -11,11 +11,21 @@
     openSUSE上默认的是gcc编译器,编译没有问题.
         在windows上如果安装了qt提供的mingw编译器,那么使用它编译也是没问题的,不过好像qt只有32位的.
     在使用msvc2017进行编译时出现了编码问题的警告,从而编译产生众多源文件中的错误,但语法上没有问题.
-        后来百度上搜索了一下大概知道了编译器之间对于utf-8的态度是不同的.找到一篇同样问题的解决方案(https://blog.csdn.net/CoolMan_1995/article/details/80319559)
+    第一种方法    
+		后来百度上搜索了一下大概知道了编译器之间对于utf-8的态度是不同的.找到一篇同样问题的解决方案(https://blog.csdn.net/CoolMan_1995/article/details/80319559)
         1.首先,把带有编码警告的文件重新编码成utf-8-BOM.
         2.在存在中文输入的源文件加上编译指令 #pragma execution_character_set("utf-8").这是用来解决编译后程序中文乱码.
-    
-            界面问题
+	
+	随后发现第二种方法
+		出自这里(https://blog.csdn.net/10km/article/details/80203286)和(https://blog.csdn.net/u014671962/article/details/101525645)
+        vs2015增加了一个 /utf-8 编译选项，将源码字符集和执行文件字符集指定为UTF-8.即不带BOM(字节顺序标志)的正常的utf-8编码.
+			如果使用qtcreator,在.pro文件中增加
+				msvc {
+					QMAKE_CFLAGS += /utf-8
+					QMAKE_CXXFLAGS += /utf-8
+				}
+			如果在vs中,则去配置ide中的设置.配置属性->c/c++->命令行,加入/utf-8.
+			界面问题
 每个模拟器都需要提供自己的控件来获取输入
 pixmap与widget的大小
     使用滚动区域根据pixmap与widget的大小决定滚动条是否出现.
