@@ -6,7 +6,9 @@
 
 ### 环境
 
-qt版本5.13,编辑器为qt自带qtcreator,于openSUSE TW上测试
+qt版本5.13;编辑器为qt自带qtcreator,默认utf-8编码;gcc是9.2.1版本;于openSUSE TW上测试
+需要c++14以上
+(win8.1下 vs2017也测试通过,可能ui部分会有不同)
 
 ### 其他
 

@@ -21,7 +21,7 @@ public:
     virtual void currentSnapshot(int n_) const override;
     virtual QSize calculationMinPixSize() override;
     virtual void nextFrame(int n_) override;
-    virtual int currentIndex() const override;
+    virtual int frameAllNumber() const override;
 public slots:
     void setPixmapsize();
 private:

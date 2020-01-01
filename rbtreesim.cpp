@@ -102,9 +102,9 @@ void RBtreeSim::nextFrame(int n_)
    p_.drawRect(x*elementProperties[0],y*elementProperties[0],elementProperties[0],elementProperties[0]);
 }
 
-int RBtreeSim::currentIndex() const
+int RBtreeSim::frameAllNumber() const
 {
-
+    return 100;
 }
 
 void RBtreeSim::setPixmapsize()

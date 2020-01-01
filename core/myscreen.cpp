@@ -6,6 +6,8 @@
 
 MyScreen::MyScreen(QWidget *parent) : QWidget(parent)
 {
+    pix=&pixTemp;
+    pix->fill(Qt::white);
 }
 
 void MyScreen::setSource(Simulator *x_)

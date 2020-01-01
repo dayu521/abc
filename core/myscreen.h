@@ -25,6 +25,7 @@ protected:
 private:
     int pixheight;
     int pixwidth;
+    QPixmap pixTemp{500,500};
     QPixmap * pix;
 };
 

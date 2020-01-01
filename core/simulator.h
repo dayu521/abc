@@ -17,24 +17,34 @@ public:
     Simulator(const Simulator &)=delete;
     //使每个组成图片的基本图形变大
     void virtual makeElementsBig(int factor);
+
     //处理模拟,生成绘图数据.所有数据都要从此函数生成,每次模拟只调用一次
     virtual void produceSimulateData()=0;
+
     //清除上次模拟数据和产生的变化,还原成初始状态
     virtual void clearSimulateData()=0;
+
     //一般用于返回给显示控件绘图所使用的pixmap
     virtual QPixmap * getPixmap()const=0;
+
     //返回使用的设置控件
     virtual QWidget * getUi()=0;
+
     //显示的条目名
     virtual QString getName()const=0;
+
     virtual void setPmpSize()const=0;
+
     //获取当前帧快照.例如,更改大小后需要重绘
     virtual void currentSnapshot(int n_)const=0;
-    //当前模拟状态
-    virtual int currentIndex()const=0;
+
+    //当前模拟的帧的总量
+    virtual int frameAllNumber()const=0;
+
     //生成每一个连续帧
     virtual void nextFrame(int n_)=0;
-    //返回当前可容纳所有内容的最小大小.例如,显示控件大小必须至少等于此大小
+
+    //返回当前可容纳所有内容的最小大小.例如,显示控件大小必定至少等于此大小
     virtual QSize calculationMinPixSize()=0;
 signals:
     void pixmapSizeChanged(int w_,int h_);

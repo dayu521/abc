@@ -18,14 +18,15 @@ class QMenu;
 class Simulator;
 class QStackedWidget;
 
+enum Status{Used,Unused};
+
+//在c++14以上,此类是聚合类型
 struct Fufu
 {
-    int id=0;
-    QString name;
-    Simulator *sim=nullptr;
-    QWidget *ui=nullptr;
-    Fufu(int id_=0,QString name_=QString(),Simulator * s_=nullptr,QWidget * ui_=nullptr):
-        id(id_),name(name_),sim(s_),ui(ui_){}
+    std::shared_ptr<Simulator> sim;     //实际模拟器.这里主要是为了强制使用new 分配内存
+    int id=0;       //在被容器插入时,由插入时顺序决定
+    int frameStatusIndex=0;  //帧状态索引
+    Status stat=Unused;        //模拟器状态
 };
 
 class Widget : public QWidget
@@ -34,7 +35,7 @@ class Widget : public QWidget
 
 public:
     Widget(QWidget *parent = nullptr);
-    void setSimulator(std::initializer_list<std::shared_ptr<Simulator>> list_);
+    void setSimulator(std::initializer_list<Fufu> list_);
     ~Widget();
 private:
     void loadCnf();
@@ -51,15 +52,18 @@ private:
     Configuration settings;
     QPointer<SettingPane> globalSetting;
     QPointer<QStackedWidget> dataInputPane;     //容纳各个simulator各自的输入和控制面板
-    int currentIndex=0;
+
+    int currentSimulatorIndex=0;
     Simulator * currentSimulator;
-    QVector<std::shared_ptr<Simulator>> simContainer;
+    int currentframeIndex=0;
+    int currentframeNumber=0;
+
+    QVector<Fufu> simContainer;
     QPointer<QTimer> animationTimer;
     QPointer<QTimer> throttleTimer;     //节流计时器
     bool isctl;
     int factor=5;   
     Mode mode;
-    int mm=0;
 
     // QWidget interface
 protected:
