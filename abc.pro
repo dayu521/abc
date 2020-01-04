@@ -7,7 +7,7 @@
 TEMPLATE = app
 QT +=widgets
 TARGET = abc
-INCLUDEPATH += . core
+INCLUDEPATH += . core component
 
 #msvc编译器识别正常utf-8
 msvc {
@@ -23,18 +23,22 @@ msvc {
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += rbtreesim.h \
+HEADERS += \
+           component/demosim.h \
+           component/rbtreesimulation.h \
            core/common.h \
            core/myscreen.h \
            core/setting.h \
            core/simulator.h \
            core/widget.h
 FORMS += core/form.ui core/widget.ui
-SOURCES += rbtreesim.cpp \
+SOURCES += \
+           component/demosim.cpp \
+           component/rbtreesimulation.cpp \
            core/main.cpp \
            core/myscreen.cpp \
            core/setting.cpp \
            core/simulator.cpp \
            core/widget.cpp
-message($$CONFIG)
-message($$QMAKESPEC)
+#message($$CONFIG)
+#message($$QMAKESPEC)

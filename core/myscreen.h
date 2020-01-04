@@ -8,13 +8,10 @@ class MyScreen : public QWidget
     Q_OBJECT
 public:
     explicit MyScreen(QWidget *parent = nullptr);
-    void setSource(Simulator *);
-    void setHeight(int h){
-        pixheight=h;
-    }
-    void setWidth(int w){
-        pixwidth=w;
-    }
+    ~MyScreen() override;
+    void setPixmapSource(Simulator *);
+    void makeLager(int w_,int h_);
+    void initMesg(const QString s="请先进行数据模拟,生成绘图数据");
 signals:
 
 public slots:
@@ -23,9 +20,8 @@ public slots:
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
 private:
-    int pixheight;
-    int pixwidth;
-    QPixmap pixTemp{500,500};
+    QVector<QPixmap *> pixContainer;
+    int currentPixIndex=0;
     QPixmap * pix;
 };
 

@@ -23,7 +23,7 @@ Widget::Widget(QWidget *parent)
     prepare();
 }
 
-void Widget::setSimulator(std::initializer_list<Fufu> list_)
+void Widget::addSimulator(std::initializer_list<Fufu> list_)
 {
 //    std::copy(list_.begin(),list_.end(),simContainer);
     int i_=simContainer.size();
@@ -61,6 +61,8 @@ void Widget::initUI()
 
     dataInputPane=new QStackedWidget();
     dataInputPane->installEventFilter(this);
+
+    ui->rightContainerWidget->resize(800,800);
 }
 
 void Widget::prepareNewSimulation()
@@ -74,22 +76,23 @@ void Widget::initAction()
 
     auto startAct=menu->addAction("生成模拟数据");
     connect(startAct,&QAction::triggered,[=](){
-        simContainer[currentSimulatorIndex].frameStatusIndex=0;
-//        changeSimulator(currentIndex);
+//        simContainer[currentSimulatorIndex].frameStatusIndex=0;
         currentSimulator->clearSimulateData();
         ui->textBrowser->append(QString("清除已模拟的数据"));
         currentSimulator->produceSimulateData();
         ui->textBrowser->append(QString("[%1]模拟数据生成完成").arg(currentSimulator->getName()));
         currentframeNumber=currentSimulator->frameAllNumber();
         currentframeIndex=0;
+        simContainer[currentSimulatorIndex].stat=HasData;
     });
 
     auto restart_Act=menu->addAction("重新放映");
     connect(restart_Act,&QAction::triggered,[=](){
         currentframeIndex=0;
-        currentSimulator->clearSimulateData();
-        if(mode==Automatic)
-            animationTimer->start();
+//        currentSimulator->clearSimulateData();
+        ui->rightContainerWidget->initMesg("请开始重新进行放映");
+//        if(mode==Automatic)
+//            animationTimer->start();
     });
 
     ui->rigthBottom->hide();
@@ -149,7 +152,7 @@ void Widget::prepare()
     animationTimer=new QTimer(this);
     animationTimer->setInterval(settings.animationInterval);
     connect(animationTimer,&QTimer::timeout,[=](){
-        if(currentframeIndex>currentframeNumber){
+        if(currentframeIndex>=currentframeNumber){
             animationTimer->stop();
             ui->textBrowser->append("放映完成");
             return ;
@@ -166,35 +169,39 @@ void Widget::prepare()
 
     throttleTimer=new QTimer(this);
     throttleTimer->setSingleShot(true);
-    connect(throttleTimer,&QTimer::timeout,[=](){
+    connect(throttleTimer,&QTimer::timeout,[this](){
         auto size_=currentSimulator->calculationMinPixSize();
-        if((ui->rightContainerWidget->size()-size_).isValid())
-            ;
-        else
-            ui->rightContainerWidget->resize(size_);
-        ui->rightContainerWidget->setSource(currentSimulator);
+        ui->rightContainerWidget->makeLager(size_.width(),size_.height());
+        ui->rightContainerWidget->setPixmapSource(currentSimulator);
         currentSimulator->currentSnapshot(currentframeIndex);
         ui->rightContainerWidget->update();
     });
-    connect(this,&Widget::changeElementsSize,[=](int x_){
+    connect(this,&Widget::changeElementsSize,[this](int x_){
         currentSimulator->makeElementsBig(x_);
         throttleTimer->start(200);
     });
 
+    ui->horizontalSlider->setValue(settings.animationInterval);
 }
 
 void Widget::changeSimulator(int index_)
 {
+    //保存当前模拟器状态,以待恢复
     simContainer[currentSimulatorIndex].frameStatusIndex=currentframeIndex;
+    //恢复新模拟器状态
+    currentframeIndex=simContainer[index_].frameStatusIndex;
     currentSimulatorIndex=index_;
     currentSimulator=simContainer[index_].sim.get();
     //相应的控制面板变更
     dataInputPane->setCurrentIndex(index_);
     dataInputPane->resize(dataInputPane->currentWidget()->size());
-    //画布换新的simulator的pixmap
-    ui->rightContainerWidget->setSource(currentSimulator);
+    //给模拟器更新画布pixmap
+    auto size_=currentSimulator->calculationMinPixSize();
+    ui->rightContainerWidget->makeLager(size_.width(),size_.height());
+    ui->rightContainerWidget->setPixmapSource(currentSimulator);
+    ui->rightContainerWidget->initMesg();
     ui->rightContainerWidget->update();
-    currentframeIndex=simContainer[index_].frameStatusIndex;
+
     setWindowTitle(currentSimulator->getName());
     showMsg();
 }
@@ -237,6 +244,10 @@ void Widget::keyReleaseEvent(QKeyEvent *event)
 
 void Widget::mousePressEvent(QMouseEvent *event)
 {
+    if(simContainer[currentSimulatorIndex].stat==Unused){
+        ui->textBrowser->append("请先模拟,产生绘图数据");
+        return ;
+    }
     if(mode==Automatic){
         if(event->button()==Qt::LeftButton){
             animationTimer->isActive()?animationTimer->stop():animationTimer->start();
@@ -271,4 +282,9 @@ void Widget::closeEvent(QCloseEvent *event)
 void Widget::on_startBtn_clicked()
 {
     qDebug()<<ui->leftContainerWidget->size();
+}
+
+void Widget::on_horizontalSlider_valueChanged(int value)
+{
+    animationTimer->setInterval(value);
 }

@@ -4,20 +4,19 @@
 
 class Widget;
 
-class RBtreeSim : public Simulator
+class DemoSim : public Simulator
 {
     Q_OBJECT
 public:
-    RBtreeSim(QString name_="红黑树");
-    ~RBtreeSim();
+    DemoSim(QString name_="画正方形例子");
+    ~DemoSim();
     // Simulator interface
 public:
     virtual QWidget *getUi() override;
     virtual QString getName() const override;
     virtual void produceSimulateData() override;
     virtual void clearSimulateData() override;
-    virtual QPixmap *getPixmap() const override;
-    virtual void setPmpSize() const override;
+    virtual void setPixmap(QPixmap *)  override;
     virtual void currentSnapshot(int n_) const override;
     virtual QSize calculationMinPixSize() override;
     virtual void nextFrame(int n_) override;
@@ -33,11 +32,11 @@ private:
      * 2=行间距,半径*3/2
      * 3=字体大小
      */
-    QVector<int> elementProperties;
-    static const int pixCount=3;
-    QPixmap * pix[pixCount];
-    int pixSize[pixCount]{1000,2000,4000};
-    int currentPixIndex=0;
+    QVector<int> elementProperties{20,  //半径
+                                   40,  //直径
+                                   20*3/2,      //间距
+                                   16    //字体大小
+                                  };
     int k;
     int mm=100;
 };

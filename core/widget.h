@@ -18,7 +18,7 @@ class QMenu;
 class Simulator;
 class QStackedWidget;
 
-enum Status{Used,Unused};
+enum Status{HasData,Unused};
 
 //在c++14以上,此类是聚合类型
 struct Fufu
@@ -35,7 +35,7 @@ class Widget : public QWidget
 
 public:
     Widget(QWidget *parent = nullptr);
-    void setSimulator(std::initializer_list<Fufu> list_);
+    void addSimulator(std::initializer_list<Fufu> list_);
     ~Widget();
 private:
     void loadCnf();
@@ -62,7 +62,7 @@ private:
     QPointer<QTimer> animationTimer;
     QPointer<QTimer> throttleTimer;     //节流计时器
     bool isctl;
-    int factor=5;   
+    int factor=20;
     Mode mode;
 
     // QWidget interface
@@ -76,6 +76,8 @@ protected:
     virtual void closeEvent(QCloseEvent *event) override;
 private slots:
     void on_startBtn_clicked();
+    void on_horizontalSlider_valueChanged(int value);
+
 signals:
     void changeElementsSize(int);
 };
