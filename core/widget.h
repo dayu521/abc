@@ -62,7 +62,7 @@ private:
     QPointer<QTimer> animationTimer;
     QPointer<QTimer> throttleTimer;     //节流计时器
     bool isctl;
-    int factor=20;
+    int factor=5;
     Mode mode;
 
     // QWidget interface

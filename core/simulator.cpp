@@ -1,18 +1,14 @@
 #include "simulator.h"
 #include<QDebug>
 
-Simulator::Simulator(QVector<int> *properties_):properties(properties_)
+Simulator::Simulator()
 {
-    if(properties==nullptr)
-        qDebug()<<"properties为空";
+
 }
 
-void Simulator::makeElementsBig(int factor)
+Simulator::~Simulator()
 {
-    std::for_each(properties->begin(),properties->end(),[=](int & x_){
-//        x_+=x_*factor/10;
-        x_+=factor;
-    });
+
 }
 
 void Simulator::setPixmap(QPixmap *p)

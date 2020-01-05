@@ -53,8 +53,11 @@ void MyScreen::makeLager(int w_, int h_)
             cur_++ ;
     }
     if(cur_>=pixContainer.size()){
-        auto big=maxH_>maxW_?maxH_:maxW_;
-        pixContainer.append(new QPixmap{big,big});
+        if(maxH_==0)
+            maxH_=maxW_;
+        if(maxW_==0)
+            maxW_=maxH_;
+        pixContainer.append(new QPixmap{maxW_,maxH_});
     }
     currentPixIndex=cur_;
     pix=pixContainer[cur_];
@@ -69,10 +72,12 @@ void MyScreen::initMesg(const QString s)
     font_.setPixelSize(36);
     p.setFont(font_);
     p.drawText(50,50,s);
+    p.drawText(50,100,"多使用鼠标右键上下文菜单");
 }
 
 void MyScreen::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event)
     QPainter p(this);
     p.drawPixmap(0,0,*pix);
 }

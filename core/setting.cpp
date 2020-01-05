@@ -33,6 +33,7 @@ SettingPane::~SettingPane()
 
 void SettingPane::showEvent(QShowEvent *event)
 {
+    Q_UNUSED(event)
     ui->animationSpeed->setValue(settings.animationInterval);
     ui->widthAndHeightLedit->setText(QString("%1:%2").arg(settings.canvasWidth).arg(settings.canvasHeight));
 }

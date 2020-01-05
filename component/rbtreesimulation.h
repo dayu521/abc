@@ -8,9 +8,9 @@ class QPainter;
 //红黑树算法取自算法导论第三版
 class RBtreeSimulation :public Simulator
 {
-    Q_OBJECT
 public:
     RBtreeSimulation();
+    ~RBtreeSimulation();
 
     // Simulator interface
 public:
@@ -24,20 +24,13 @@ public:
     virtual void nextFrame(int n_) override;
     virtual QSize calculationMinPixSize() override;
     virtual void makeElementsBig(int factor) override;
+    virtual void prepareRepaintPixmap() override;
 private:
-    QVector<int> elementProperties{40//节点直径
-                                  };
 
     int _diameter =40;   //节点直径
     int _radius = _diameter / 2;    //半径
     int _nodeLineHeight = 3 * _diameter / 2;     //垂直距离
     int _fontSize=_radius;      //字体大小
-
-    //红黑树节点类
-    template<typename T>
-    class Node;
-    Node<int> *root;        //红黑树根节点
-    Node<int> *NIL;     //红黑树的哨兵节点
 
     //用于绘图的红黑树节点类
     struct FakeNode;
@@ -96,6 +89,12 @@ private:
         FakeNode(int value, FakeNode *left = nullptr, FakeNode *right = nullptr,
                  FakeNode *parent = nullptr)
             : _value(value), _left(left), _right(right), _parent(parent) {}
+        void init(){
+            _next=_prev=nullptr;
+            x=0;
+            y=xParent=yParent=-1;
+            color=Red;
+        }
     };
 
     //绘图操作
@@ -140,20 +139,25 @@ private:
          */
     struct SomeNodeItem{FakeNode * a[3];};
 private:
+    //红黑树
     void initialTree();
+    void emptyTree(Node<int> * &root);
     void rotationWithLeftChild(Node<int> *&root);
     void rotationWithRightChild(Node<int> *&root);
+    bool insert(int );
+    void insertionFixUpOfDoubleRed(Node<int> *root);
+    void remove(int );
+    void removeFixUpOfLostOfBlack(Node<int> *root);
+    void replace(Node<int> *y, Node<int> *x);
+    Node<int> * findMinValueNode(const Node<int> * root);
     Node<int> *&getParentReference(Node<int> *child) {
         if (child->parent == NIL) return this->root;
         return child == child->parent->left ? child->parent->left
                                             : child->parent->right;
     }
-    bool insert(int );
-    void insertionFixUpOfDoubleRed(Node<int> *root);
-    void replace(Node<int> *y, Node<int> *x);
-    Node<int> * findMinValueNode(const Node<int> * root);
-    void remove(int );
-    void removeFixUpOfLostOfBlack(Node<int> *root);
+    //红黑树节点类
+    Node<int> *root;        //红黑树根节点
+    Node<int> *NIL;     //红黑树的哨兵节点
 
     //绘图
     void dispatchActionAndDraw(Action &action);

@@ -25,6 +25,9 @@ msvc {
 # Input
 HEADERS += \
            component/demosim.h \
+           component/hanoisim.h \
+           component/mazesim.h \
+           component/quicksortsim.h \
            component/rbtreesimulation.h \
            core/common.h \
            core/myscreen.h \
@@ -34,6 +37,9 @@ HEADERS += \
 FORMS += core/form.ui core/widget.ui
 SOURCES += \
            component/demosim.cpp \
+           component/hanoisim.cpp \
+           component/mazesim.cpp \
+           component/quicksortsim.cpp \
            component/rbtreesimulation.cpp \
            core/main.cpp \
            core/myscreen.cpp \

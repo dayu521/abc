@@ -81,6 +81,10 @@ void Widget::initAction()
         ui->textBrowser->append(QString("清除已模拟的数据"));
         currentSimulator->produceSimulateData();
         ui->textBrowser->append(QString("[%1]模拟数据生成完成").arg(currentSimulator->getName()));
+        //给模拟器更新画布pixmap
+        auto size_=currentSimulator->calculationMinPixSize();
+        ui->rightContainerWidget->makeLager(size_.width(),size_.height());
+        ui->rightContainerWidget->setPixmapSource(currentSimulator);
         currentframeNumber=currentSimulator->frameAllNumber();
         currentframeIndex=0;
         simContainer[currentSimulatorIndex].stat=HasData;
@@ -89,7 +93,7 @@ void Widget::initAction()
     auto restart_Act=menu->addAction("重新放映");
     connect(restart_Act,&QAction::triggered,[=](){
         currentframeIndex=0;
-//        currentSimulator->clearSimulateData();
+        currentSimulator->prepareRepaintPixmap();
         ui->rightContainerWidget->initMesg("请开始重新进行放映");
 //        if(mode==Automatic)
 //            animationTimer->start();
@@ -195,10 +199,8 @@ void Widget::changeSimulator(int index_)
     //相应的控制面板变更
     dataInputPane->setCurrentIndex(index_);
     dataInputPane->resize(dataInputPane->currentWidget()->size());
-    //给模拟器更新画布pixmap
-    auto size_=currentSimulator->calculationMinPixSize();
-    ui->rightContainerWidget->makeLager(size_.width(),size_.height());
-    ui->rightContainerWidget->setPixmapSource(currentSimulator);
+
+//    ui->rightContainerWidget->setPixmapSource(currentSimulator);
     ui->rightContainerWidget->initMesg();
     ui->rightContainerWidget->update();
 
@@ -217,7 +219,7 @@ void Widget::showMsg()
 
 void Widget::resizeEvent(QResizeEvent *event)
 {
-
+    Q_UNUSED(event)
 }
 
 void Widget::keyPressEvent(QKeyEvent *event)
@@ -259,6 +261,7 @@ void Widget::mousePressEvent(QMouseEvent *event)
 
 bool Widget::eventFilter(QObject *object, QEvent *event)
 {
+    Q_UNUSED(object)
     if(event->type()==QEvent::KeyPress||event->type()==QEvent::KeyRelease){
         QCoreApplication::sendEvent(this,event);
         return true;
@@ -268,6 +271,7 @@ bool Widget::eventFilter(QObject *object, QEvent *event)
 
 void Widget::contextMenuEvent(QContextMenuEvent *event)
 {
+    Q_UNUSED(event)
     menu->exec(QCursor::pos()+QPoint(5,5));
 }
 

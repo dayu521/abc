@@ -1,6 +1,7 @@
 #include "widget.h"
 #include"demosim.h"
 #include"rbtreesimulation.h"
+#include"quicksortsim.h"
 #include<memory>
 
 #include <QApplication>

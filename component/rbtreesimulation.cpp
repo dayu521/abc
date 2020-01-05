@@ -3,19 +3,24 @@
 #include<QPainter>
 #include<QWidget>
 
-RBtreeSimulation::RBtreeSimulation():Simulator(&elementProperties)
+RBtreeSimulation::RBtreeSimulation():Simulator()
 {
     initialTree();
+}
+
+RBtreeSimulation::~RBtreeSimulation()
+{
+    qDeleteAll(fakeNodeContainer);
+    emptyTree(root);
+    delete NIL;
+    delete fakeSentinelNode;
 }
 
 void RBtreeSimulation::produceSimulateData()
 {
     _qvectorForData.clear();
-//    for (auto a = 0; a < 100; a++) {
-//        _qvectorForData<< rand() % 200;
-//    }
     for(int i=0;i<100;i++){
-        auto x=rand() % 200;
+        auto x=i;/*rand() % 200;*/
         if(insert(x))
             _qvectorForData<<x;
     }
@@ -23,7 +28,16 @@ void RBtreeSimulation::produceSimulateData()
 
 void RBtreeSimulation::clearSimulateData()
 {
-
+    _arrayForOrder.clear();
+    emptyTree(root);
+    root=NIL;
+    fakeSentinelNode->_prev=fakeSentinelNode->_next=fakeSentinelNode;
+    fakeRoot=fakeNIL;
+    fakeNIL->_parent=fakeNIL->_left=fakeNIL->_right=fakeNIL;
+    fakeNodeContainer.remove(-9998);
+    qDeleteAll(fakeNodeContainer);
+    fakeNodeContainer.clear();
+    fakeNodeContainer.insert(fakeNIL->_value,fakeNIL);
 }
 
 QWidget *RBtreeSimulation::getUi()
@@ -39,11 +53,22 @@ QString RBtreeSimulation::getName() const
 void RBtreeSimulation::setPixmap(QPixmap *p)
 {
     pix=p;
+    pix->fill();
 }
 
 void RBtreeSimulation::currentSnapshot(int n_) const
 {
-
+    QPainter pp(pix);
+    pix->fill();
+    pp.translate(0,_diameter/2);
+    QFont font = pp.font();
+    font.setPixelSize(_fontSize);
+    pp.setFont(font);
+    drawAllElement(pp,fakeRoot);
+    pp.end();
+    auto x=n_-1;
+    if(_arrayForOrder[x]._ope==Operator::Search)
+        drawCurrentNodeItem(_searchNodeItem);
 }
 
 int RBtreeSimulation::frameAllNumber() const
@@ -64,11 +89,18 @@ QSize RBtreeSimulation::calculationMinPixSize()
 
 void RBtreeSimulation::makeElementsBig(int factor)
 {
-    Simulator::makeElementsBig(factor);
-    _diameter =elementProperties[0];
+
+    _diameter +=factor;
     _radius = _diameter / 2;
     _nodeLineHeight = 3 * _diameter / 2;
     _fontSize=_radius;
+}
+
+void RBtreeSimulation::prepareRepaintPixmap()
+{
+    fakeRoot=fakeNIL;
+
+    fakeSentinelNode->_prev=fakeSentinelNode->_next=fakeSentinelNode;
 }
 
 void RBtreeSimulation::initialTree()
@@ -85,6 +117,17 @@ void RBtreeSimulation::initialTree()
     fakeNIL->_parent=fakeNIL->_left=fakeNIL->_right=fakeNIL;
 
     fakeNodeContainer.insert(fakeNIL->_value,fakeNIL);
+}
+
+void RBtreeSimulation::emptyTree(Node<int> *&root)
+{
+    if(root!=NIL)
+    {
+        emptyTree(root->left);
+        emptyTree(root->right);
+        delete root;
+        root=nullptr;
+    }
 }
 
 void RBtreeSimulation::rotationWithLeftChild(Node<int> *&root)
@@ -472,16 +515,25 @@ void RBtreeSimulation::paintColor(RBtreeSimulation::FakeNode *root, QPainter &pp
 
 RBtreeSimulation::FakeNode *RBtreeSimulation::search(RBtreeSimulation::Action &action)
 {
-//    _searchNodeItem=
-            return fakeNodeContainer.value(action.array[0]);
-            //    return _searchNodeItem;
+    //保存当前正在查找的节点,在染色时会考虑相应变大一点
+    _searchNodeItem=fakeNodeContainer.value(action.array[0]);
+    return _searchNodeItem;
 }
 
 void RBtreeSimulation::add(RBtreeSimulation::Action &action)
 {
     auto _parentNode=fakeNodeContainer.value(action.array[1]);
-    auto _newNode=new FakeNode(action.array[0],fakeNIL,fakeNIL,_parentNode);
-    fakeNodeContainer.insert(_newNode->_value,_newNode);
+    FakeNode * _newNode=nullptr;
+    if(fakeNodeContainer.contains(action.array[0])){
+        _newNode=fakeNodeContainer.value((action.array[0]));
+        _newNode->_left=fakeNIL;
+        _newNode->_right=fakeNIL;
+        _newNode->_parent=_parentNode;
+        _newNode->init();
+    }else{
+        _newNode=new FakeNode(action.array[0],fakeNIL,fakeNIL,_parentNode);
+        fakeNodeContainer.insert(_newNode->_value,_newNode);
+    }
     if(_parentNode==fakeNIL)
         fakeRoot=_newNode;
     else if(_parentNode->_value>_newNode->_value)
@@ -547,7 +599,7 @@ void RBtreeSimulation::substitute(RBtreeSimulation::Action &action)
 
 void RBtreeSimulation::done(RBtreeSimulation::Action &action)
 {
-
+    Q_UNUSED(action)
 }
 
 void RBtreeSimulation::fillPropertyInInsert(RBtreeSimulation::FakeNode *_nodeItem)
@@ -638,11 +690,6 @@ void RBtreeSimulation::rotationWithRightChildForNodeItem(RBtreeSimulation::FakeN
 
     root->_parent = right_child;
     root = right_child;
-}
-
-void RBtreeSimulation::replaceForNodeItem(RBtreeSimulation::FakeNode *y, RBtreeSimulation::FakeNode *x)
-{
-
 }
 
 template<typename T>
