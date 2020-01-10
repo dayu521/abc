@@ -1,5 +1,7 @@
 #include "quicksortsim.h"
 #include<QWidget>
+#include<QPainter>
+#include<QDebug>
 
 QuicksortSimulation::QuicksortSimulation()
 {
@@ -8,18 +10,32 @@ QuicksortSimulation::QuicksortSimulation()
 
 void QuicksortSimulation::makeElementsBig(int factor)
 {
-    dHeight+=factor;
+    dHeight+=factor/5;
     width+=factor;
+    fontSize+=factor/2;
+    maxHeight=maxElement*dHeight+50;
 }
 
 void QuicksortSimulation::produceSimulateData()
 {
+    for(int i=0;i<80;i++){
+        auto x=rand()%200;
+        originData<<x;
+        data<<x;
+        if(maxElement<x)
+            maxElement=x;
+    }
     quickSort(data);
+    elementContainer.append(originData);
+    maxHeight=maxElement*dHeight+50;
 }
 
 void QuicksortSimulation::clearSimulateData()
 {
-
+    frames.clear();
+    originData.clear();
+    data.clear();
+    elementContainer.clear();
 }
 
 void QuicksortSimulation::prepareRepaintPixmap()
@@ -35,6 +51,17 @@ QString QuicksortSimulation::getName() const
 void QuicksortSimulation::currentSnapshot(int n_) const
 {
     Q_UNUSED(n_)
+    pix->fill();
+    QPainter p(pix);
+//    auto f_=p.font();
+//    f_.setPixelSize(fontSize);
+//    p.setFont(f_);
+    p.setBrush(Qt::red);
+    for(int i=0;i<elementContainer.size();i++){
+        p.drawRect(i*width+1,maxHeight-elementContainer[i]*dHeight,width-2,elementContainer[i]*dHeight);
+        p.drawText(i*width,maxHeight,QString::number(elementContainer[i]));
+    }
+
 }
 
 int QuicksortSimulation::frameAllNumber() const
@@ -49,9 +76,9 @@ void QuicksortSimulation::nextFrame(int n_)
 
 QSize QuicksortSimulation::calculationMinPixSize()
 {
-    auto x=0;
-    std::for_each(elementContainer.begin(),elementContainer.end(),[&x](int e){x=e>x?e:x;});
-    return {width*elementContainer.size(),x*dHeight*2};
+//    auto x=0;
+//    std::for_each(elementContainer.begin(),elementContainer.end(),[&x](int e){x=e>x?e:x;});
+    return {width*elementContainer.size(),maxHeight+50};
 }
 
 void QuicksortSimulation::quickSort(QVector<int> &vec_, int left_, int right_)
