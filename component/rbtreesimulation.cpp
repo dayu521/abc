@@ -16,7 +16,7 @@ RBtreeSimulation::~RBtreeSimulation()
     delete fakeSentinelNode;
 }
 
-void RBtreeSimulation::produceSimulateData()
+void RBtreeSimulation::produceActionData()
 {
     _qvectorForData.clear();
     for(int i=0;i<100;i++){
@@ -26,7 +26,7 @@ void RBtreeSimulation::produceSimulateData()
     }
 }
 
-void RBtreeSimulation::clearSimulateData()
+void RBtreeSimulation::clearActionData()
 {
     _arrayForOrder.clear();
     emptyTree(root);
@@ -71,13 +71,14 @@ void RBtreeSimulation::currentSnapshot(int n_) const
         drawCurrentNodeItem(_searchNodeItem);
 }
 
-int RBtreeSimulation::frameAllNumber() const
+int RBtreeSimulation::actionNumber() const
 {
     return _arrayForOrder.size();
 }
 
-void RBtreeSimulation::nextFrame(int n_)
+void RBtreeSimulation::nextAction(int n_)
 {
+    currentAction=n_;
     dispatchActionAndDraw(_arrayForOrder[n_]);
 }
 
@@ -96,11 +97,26 @@ void RBtreeSimulation::makeElementsBig(int factor)
     _fontSize=_radius;
 }
 
-void RBtreeSimulation::prepareRepaintPixmap()
+void RBtreeSimulation::prepareReplay()
 {
     fakeRoot=fakeNIL;
 
     fakeSentinelNode->_prev=fakeSentinelNode->_next=fakeSentinelNode;
+}
+
+bool RBtreeSimulation::nextFrame()
+{
+    return false;
+}
+
+void RBtreeSimulation::animationStart()
+{
+
+}
+
+void RBtreeSimulation::searchANM()
+{
+    _searchNodeItem->_parent;
 }
 
 void RBtreeSimulation::initialTree()
@@ -418,33 +434,37 @@ void RBtreeSimulation::removeFixUpOfLostOfBlack(Node<int> *root)
 void RBtreeSimulation::dispatchActionAndDraw(RBtreeSimulation::Action &action)
 {
     switch (action._ope) {
-    case Operator::Search:
-        drawCurrentNodeItem(search(action));
-        break;
-    case Operator::Add:
-        add(action);
-        drawAllElement();
-        break;
-    case Operator::Rotate:
-        rotate(action);
-        drawAllElement();
-        break;
-    case Operator::Substitute:
-        substitute(action);
-        drawAllElement();
-        break;
-    case Operator::ChangeColor:{
-            auto arrayof3=changeColor(action);
-            recolorNodeItem({arrayof3.a[0],arrayof3.a[1],arrayof3.a[2]});
-        }
-        break;
-    case Operator::NextValue:
-        showNextValue();
-        break;
-    case Operator::Done:
-        done(action);
-        drawAllElement();
-        break;
+        case Operator::Search:{
+                auto x=search(action);
+                auto now=_searchNodeItem;
+                auto before=_searchNodeItem->_parent;
+                drawCurrentNodeItem(x);
+            }
+            break;
+        case Operator::Add:
+            add(action);
+            drawAllElement();
+            break;
+        case Operator::Rotate:
+            rotate(action);
+            drawAllElement();
+            break;
+        case Operator::Substitute:
+            substitute(action);
+            drawAllElement();
+            break;
+        case Operator::ChangeColor:{
+                auto arrayof3=changeColor(action);
+                recolorNodeItem({arrayof3.a[0],arrayof3.a[1],arrayof3.a[2]});
+            }
+            break;
+        case Operator::NextValue:
+            showNextValue();
+            break;
+        case Operator::Done:
+            done(action);
+            drawAllElement();
+            break;
     }
 }
 

@@ -9,6 +9,9 @@ QT +=widgets
 TARGET = abc
 INCLUDEPATH += . core component
 
+#可执行文件放在此目录,即当前工程目录
+DESTDIR =$$PWD
+
 #msvc编译器识别正常utf-8
 msvc {
 	QMAKE_CFLAGS += /utf-8
@@ -46,5 +49,8 @@ SOURCES += \
            core/setting.cpp \
            core/simulator.cpp \
            core/widget.cpp
+TRANSLATIONS +=abc_en_US.ts \
+            abc_zh_CN.ts \
+
 #message($$CONFIG)
 #message($$QMAKESPEC)

@@ -4,21 +4,21 @@
 #include<QColor>
 
 //数据结构与算法分析c++描述第三版
-class QuicksortSimulation:public Simulator
+class QuickSortSimulation:public Simulator
 {
 public:
-    QuicksortSimulation();
+    QuickSortSimulation();
     void quickSort(QVector<int> & v){quickSort(v,0,v.size()-1);}
     // Simulator interface
 public:
     virtual void makeElementsBig(int factor) override;
-    virtual void produceSimulateData() override;
-    virtual void clearSimulateData() override;
-    virtual void prepareRepaintPixmap() override;
+    virtual void produceActionData() override;
+    virtual void clearActionData() override;
+    virtual void prepareReplay() override;
     virtual QString getName() const override;
     virtual void currentSnapshot(int n_) const override;
-    virtual int frameAllNumber() const override;
-    virtual void nextFrame(int n_) override;
+    virtual int actionNumber() const override;
+    virtual void nextAction(int n_) override;
     virtual QSize calculationMinPixSize() override;
 private:
     int width=15;  //元素宽度

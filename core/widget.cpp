@@ -56,7 +56,7 @@ void Widget::initUI()
     globalSetting=new SettingPane(settings,this);
     globalSetting->installEventFilter(this);
     connect(globalSetting,&SettingPane::changeAnimationSpeed,[=](int x_){
-        animationTimer->setInterval(x_);
+        actionTimer->setInterval(x_);
     });
 
     dataInputPane=new QStackedWidget();
@@ -74,27 +74,28 @@ void Widget::initAction()
 {
     menu=new QMenu(this);
 
-    auto startAct=menu->addAction("生成模拟数据");
+    // =fuc
+    auto startAct=menu->addAction(tr("生成模拟数据"));
     connect(startAct,&QAction::triggered,[=](){
 //        simContainer[currentSimulatorIndex].frameStatusIndex=0;
-        currentSimulator->clearSimulateData();
-        ui->textBrowser->append(QString("清除已模拟的数据"));
-        currentSimulator->produceSimulateData();
-        ui->textBrowser->append(QString("[%1]模拟数据生成完成").arg(currentSimulator->getName()));
+        currentSimulator->clearActionData();
+        ui->textBrowser->append(tr("清除已模拟的数据"));
+        currentSimulator->produceActionData();
+        ui->textBrowser->append(tr("[%1]模拟数据生成完成").arg(currentSimulator->getName()));
         //给模拟器更新画布pixmap
         auto size_=currentSimulator->calculationMinPixSize();
         ui->rightContainerWidget->makeLager(size_.width(),size_.height());
         ui->rightContainerWidget->setPixmapSource(currentSimulator);
-        currentframeNumber=currentSimulator->frameAllNumber();
-        currentframeIndex=0;
+        currentActionNumber=currentSimulator->actionNumber();
+        currentActionIndex=0;
         simContainer[currentSimulatorIndex].stat=HasData;
     });
 
-    auto restart_Act=menu->addAction("重新放映");
+    auto restart_Act=menu->addAction(tr("重新放映"));
     connect(restart_Act,&QAction::triggered,[=](){
-        currentframeIndex=0;
-        currentSimulator->prepareRepaintPixmap();
-        ui->rightContainerWidget->initMesg("请开始重新进行放映");
+        currentActionIndex=0;
+        currentSimulator->prepareReplay();
+        ui->rightContainerWidget->initMesg(tr("请开始重新进行放映"));
 //        if(mode==Automatic)
 //            animationTimer->start();
     });
@@ -111,35 +112,35 @@ void Widget::initAction()
 //        }
 //    });
 
-    auto set_Act=menu->addAction("配置设置");
+    auto set_Act=menu->addAction(tr("配置设置"));
     connect(set_Act,&QAction::triggered,[=](bool){
         globalSetting->move(width()/2-globalSetting->width()/2,height()/2-globalSetting->height()/2);
         globalSetting->show();
     });
-    auto data_InputAct=menu->addAction("数据设定面板");
+    auto data_InputAct=menu->addAction(tr("数据设定面板"));
     connect(data_InputAct,&QAction::triggered,[=](bool){
         dataInputPane->setCurrentIndex(ui->menuList->currentIndex());
         dataInputPane->show();
     });
 
-    auto menu_sub1=menu->addMenu("其他设置");
-    auto autop_Act=menu_sub1->addAction("自动放映");
+    auto menu_sub1=menu->addMenu(tr("其他设置"));
+    auto autop_Act=menu_sub1->addAction(tr("自动放映"));
     autop_Act->setCheckable(true);
     autop_Act->setChecked(true);
     mode=Automatic;
     connect(autop_Act,&QAction::triggered,[=](bool checked){
         if(!checked){
             mode=Manual;
-            animationTimer->stop();
-            ui->textBrowser->append("关闭自动放映:请使用 [ 和 ] 进行放映");
+            actionTimer->stop();
+            ui->textBrowser->append(tr("关闭自动放映:请使用 [ 和 ] 进行放映"));
         }else{
             mode=Automatic;
-            ui->textBrowser->append("自动放映开启:请使用鼠标左键开始/暂停");
+            ui->textBrowser->append(tr("自动放映开启:请使用鼠标左键开始/暂停"));
         }
     });
 
     //    ui->leftContainerWidget->hide();
-    auto show_SideAct=menu_sub1->addAction("显示侧栏");
+    auto show_SideAct=menu_sub1->addAction(tr("显示侧栏"));
     show_SideAct->setCheckable(true);
     show_SideAct->setChecked(true);
     connect(show_SideAct,&QAction::triggered,[=](bool checked){
@@ -153,21 +154,35 @@ void Widget::initAction()
 
 void Widget::prepare()
 {
+    actionTimer=new QTimer(this);
+    actionTimer->setSingleShot(true);
+    connect(actionTimer,&QTimer::timeout,[=](){
+        if(currentActionIndex>=currentActionNumber){
+            actionTimer->stop();
+            ui->textBrowser->append(tr("放映完成"));
+            return ;
+        }
+        currentSimulator->nextAction(currentActionIndex);
+        currentActionIndex++;
+        ui->rightContainerWidget->update();
+        currentSimulator->animationStart();
+        animationTimer->start();
+    });
+
     animationTimer=new QTimer(this);
     animationTimer->setInterval(settings.animationInterval);
     connect(animationTimer,&QTimer::timeout,[=](){
-        if(currentframeIndex>=currentframeNumber){
+        if(!currentSimulator->nextFrame()){
             animationTimer->stop();
-            ui->textBrowser->append("放映完成");
+            actionTimer->start();
             return ;
         }
-        currentSimulator->nextFrame(currentframeIndex);
-        currentframeIndex++;
+
         ui->rightContainerWidget->update();
     });
 
     connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[=](int x){
-        animationTimer->stop();
+        actionTimer->stop();
         changeSimulator(x);
     });
 
@@ -177,7 +192,7 @@ void Widget::prepare()
         auto size_=currentSimulator->calculationMinPixSize();
         ui->rightContainerWidget->makeLager(size_.width(),size_.height());
         ui->rightContainerWidget->setPixmapSource(currentSimulator);
-        currentSimulator->currentSnapshot(currentframeIndex);
+        currentSimulator->currentSnapshot(currentActionIndex);
         ui->rightContainerWidget->update();
     });
     connect(this,&Widget::changeElementsSize,[this](int x_){
@@ -191,9 +206,9 @@ void Widget::prepare()
 void Widget::changeSimulator(int index_)
 {
     //保存当前模拟器状态,以待恢复
-    simContainer[currentSimulatorIndex].frameStatusIndex=currentframeIndex;
+    simContainer[currentSimulatorIndex].frameStatusIndex=currentActionIndex;
     //恢复新模拟器状态
-    currentframeIndex=simContainer[index_].frameStatusIndex;
+    currentActionIndex=simContainer[index_].frameStatusIndex;
     currentSimulatorIndex=index_;
     currentSimulator=simContainer[index_].sim.get();
     //相应的控制面板变更
@@ -212,9 +227,9 @@ void Widget::showMsg()
 {
     auto cout=ui->textBrowser;
     cout->clear();
-    cout->append(QString("当前模拟:[ %1 ]").arg(currentSimulator->getName()));
+    cout->append(tr("当前模拟:[ %1 ]").arg(currentSimulator->getName()));
     if(mode==Automatic)
-        cout->append(QString("自动放映开启"));
+        cout->append(QString(tr("自动放映开启")));
 }
 
 void Widget::resizeEvent(QResizeEvent *event)
@@ -247,13 +262,13 @@ void Widget::keyReleaseEvent(QKeyEvent *event)
 void Widget::mousePressEvent(QMouseEvent *event)
 {
     if(simContainer[currentSimulatorIndex].stat==Unused){
-        ui->textBrowser->append("请先模拟,产生绘图数据");
+        ui->textBrowser->append(tr("请先模拟,产生绘图数据"));
         return ;
     }
     if(mode==Automatic){
         if(event->button()==Qt::LeftButton){
             animationTimer->isActive()?animationTimer->stop():animationTimer->start();
-            ui->textBrowser->append(animationTimer->isActive()?"开始":"暂停");
+            ui->textBrowser->append(animationTimer->isActive()?tr("开始"):tr("暂停"));
             event->accept();
         }
     }

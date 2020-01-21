@@ -14,17 +14,21 @@ public:
 
     // Simulator interface
 public:
-    virtual void produceSimulateData() override;
-    virtual void clearSimulateData() override;
+    virtual void produceActionData() override;
+    virtual void clearActionData() override;
     virtual QWidget *getUi() override;
     virtual QString getName() const override;
     virtual void setPixmap(QPixmap *) override;
     virtual void currentSnapshot(int n_) const override;
-    virtual int frameAllNumber() const override;
-    virtual void nextFrame(int n_) override;
+    virtual int actionNumber() const override;
+    virtual void nextAction(int n_) override;
     virtual QSize calculationMinPixSize() override;
     virtual void makeElementsBig(int factor) override;
-    virtual void prepareRepaintPixmap() override;
+    virtual void prepareReplay() override;
+    virtual bool nextFrame() override;
+    virtual void animationStart() override;
+private:
+    void searchANM();
 private:
 
     int _diameter =40;   //节点直径
@@ -40,6 +44,9 @@ private:
     QHash<int, FakeNode *> fakeNodeContainer;    //持有绘图树节点
     QQueue<FakeNode *> fakeNodeQueue;       //用来进行层序遍历,然后设置每个绘图节点的y轴坐标
 
+    struct Status;
+    Status * current;
+    Status * next;
     //树节点数量
     int _nodeSize=0;
 
@@ -50,6 +57,7 @@ private:
 
     struct Action;
     QVector<Action> _arrayForOrder;     //保存的一系列操作
+    int currentAction;
     //红黑树颜色
     enum Color { Red, Black };
     //红黑树节点
@@ -70,6 +78,10 @@ private:
               left(_left),
               right(_right),
               color(_Color) {}
+    };
+
+    struct Status{
+
     };
 
     struct FakeNode {
@@ -189,6 +201,7 @@ private:
         return child == child->_parent->_left ? child->_parent->_left
                                               : child->_parent->_right;
     }
+
 };
 
 #endif // RBTREESIMULATION_H

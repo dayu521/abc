@@ -29,12 +29,12 @@ QString DemoSim::getName() const
     return name;
 }
 
-void DemoSim::produceSimulateData()
+void DemoSim::produceActionData()
 {
 
 }
 
-void DemoSim::clearSimulateData()
+void DemoSim::clearActionData()
 {
 
 }
@@ -67,7 +67,7 @@ QSize DemoSim::calculationMinPixSize()
     return {w_,h_};
 }
 
-void DemoSim::nextFrame(int n_)
+void DemoSim::nextAction(int n_)
 {
     if(n_==0)
         pix->fill();
@@ -78,12 +78,12 @@ void DemoSim::nextFrame(int n_)
     p_.drawRect(x*_diameter,y*_diameter,_diameter,_diameter);
 }
 
-int DemoSim::frameAllNumber() const
+int DemoSim::actionNumber() const
 {
     return 100;
 }
 
-void DemoSim::prepareRepaintPixmap()
+void DemoSim::prepareReplay()
 {
 
 }

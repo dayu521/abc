@@ -18,6 +18,16 @@ void Simulator::setPixmap(QPixmap *p)
     p->fill();
 }
 
+bool Simulator::nextFrame()
+{
+
+}
+
+void Simulator::animationStart()
+{
+
+}
+
 QWidget *Simulator::getUi()
 {
     return new QWidget;

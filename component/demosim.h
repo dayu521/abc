@@ -11,14 +11,14 @@ public:
 public:
     virtual QWidget *getUi() override;
     virtual QString getName() const override;
-    virtual void produceSimulateData() override;
-    virtual void clearSimulateData() override;
+    virtual void produceActionData() override;
+    virtual void clearActionData() override;
     virtual void setPixmap(QPixmap *)  override;
     virtual void currentSnapshot(int n_) const override;
     virtual QSize calculationMinPixSize() override;
-    virtual void nextFrame(int n_) override;
-    virtual int frameAllNumber() const override;
-    void prepareRepaintPixmap() override;
+    virtual void nextAction(int n_) override;
+    virtual int actionNumber() const override;
+    void prepareReplay() override;
     virtual void makeElementsBig(int factor) override;
 public slots:
     void setPixmapsize();

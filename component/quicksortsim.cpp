@@ -3,12 +3,12 @@
 #include<QPainter>
 #include<QDebug>
 
-QuicksortSimulation::QuicksortSimulation()
+QuickSortSimulation::QuickSortSimulation()
 {
 
 }
 
-void QuicksortSimulation::makeElementsBig(int factor)
+void QuickSortSimulation::makeElementsBig(int factor)
 {
     dHeight+=factor/5;
     width+=factor;
@@ -16,7 +16,7 @@ void QuicksortSimulation::makeElementsBig(int factor)
     maxHeight=maxElement*dHeight+50;
 }
 
-void QuicksortSimulation::produceSimulateData()
+void QuickSortSimulation::produceActionData()
 {
     for(int i=0;i<80;i++){
         auto x=rand()%200;
@@ -30,7 +30,7 @@ void QuicksortSimulation::produceSimulateData()
     maxHeight=maxElement*dHeight+50;
 }
 
-void QuicksortSimulation::clearSimulateData()
+void QuickSortSimulation::clearActionData()
 {
     frames.clear();
     originData.clear();
@@ -38,17 +38,17 @@ void QuicksortSimulation::clearSimulateData()
     elementContainer.clear();
 }
 
-void QuicksortSimulation::prepareRepaintPixmap()
+void QuickSortSimulation::prepareReplay()
 {
     pix->fill();
 }
 
-QString QuicksortSimulation::getName() const
+QString QuickSortSimulation::getName() const
 {
     return "快速排序";
 }
 
-void QuicksortSimulation::currentSnapshot(int n_) const
+void QuickSortSimulation::currentSnapshot(int n_) const
 {
     Q_UNUSED(n_)
     pix->fill();
@@ -64,24 +64,24 @@ void QuicksortSimulation::currentSnapshot(int n_) const
 
 }
 
-int QuicksortSimulation::frameAllNumber() const
+int QuickSortSimulation::actionNumber() const
 {
     return 10;
 }
 
-void QuicksortSimulation::nextFrame(int n_)
+void QuickSortSimulation::nextAction(int n_)
 {
     Q_UNUSED(n_)
 }
 
-QSize QuicksortSimulation::calculationMinPixSize()
+QSize QuickSortSimulation::calculationMinPixSize()
 {
 //    auto x=0;
 //    std::for_each(elementContainer.begin(),elementContainer.end(),[&x](int e){x=e>x?e:x;});
     return {width*elementContainer.size(),maxHeight+50};
 }
 
-void QuicksortSimulation::quickSort(QVector<int> &vec_, int left_, int right_)
+void QuickSortSimulation::quickSort(QVector<int> &vec_, int left_, int right_)
 {
     //三个或三个以上进行快排
     if(left_<=right_-9){
@@ -115,7 +115,7 @@ void QuicksortSimulation::quickSort(QVector<int> &vec_, int left_, int right_)
     }
 }
 
-int QuicksortSimulation::median3(QVector<int> &vec_, int left_, int right_)
+int QuickSortSimulation::median3(QVector<int> &vec_, int left_, int right_)
 {
     auto mid_=(left_+right_)/2;
     //先找最大值

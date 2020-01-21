@@ -55,10 +55,11 @@ private:
 
     int currentSimulatorIndex=0;
     Simulator * currentSimulator;
-    int currentframeIndex=0;
-    int currentframeNumber=0;
+    int currentActionIndex=0;
+    int currentActionNumber=0;
 
     QVector<Fufu> simContainer;
+    QPointer<QTimer> actionTimer;
     QPointer<QTimer> animationTimer;
     QPointer<QTimer> throttleTimer;     //节流计时器
     bool isctl;
