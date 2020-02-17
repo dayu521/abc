@@ -16,9 +16,9 @@ public:
     virtual void clearActionData() override;
     virtual void prepareReplay() override;
     virtual QString getName() const override;
-    virtual void currentSnapshot(int n_) const override;
+    virtual void currentSnapshot() const override;
     virtual int actionNumber() const override;
-    virtual void nextAction(int n_) override;
+    virtual void nextAction() override;
     virtual QSize calculationMinPixSize() override;
 private:
     int width=15;  //元素宽度

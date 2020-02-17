@@ -44,8 +44,9 @@ void DemoSim::setPixmap(QPixmap * p_)
     pix=p_;
 }
 
-void DemoSim::currentSnapshot(int n_) const
+void DemoSim::currentSnapshot() const
 {
+    auto n_=this->n_;
     n_--;
     pix->fill(Qt::white);
     QPainter p_(pix);
@@ -67,7 +68,7 @@ QSize DemoSim::calculationMinPixSize()
     return {w_,h_};
 }
 
-void DemoSim::nextAction(int n_)
+void DemoSim::nextAction()
 {
     if(n_==0)
         pix->fill();

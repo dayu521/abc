@@ -14,9 +14,9 @@ public:
     virtual void produceActionData() override;
     virtual void clearActionData() override;
     virtual void setPixmap(QPixmap *)  override;
-    virtual void currentSnapshot(int n_) const override;
+    virtual void currentSnapshot() const override;
     virtual QSize calculationMinPixSize() override;
-    virtual void nextAction(int n_) override;
+    virtual void nextAction() override;
     virtual int actionNumber() const override;
     void prepareReplay() override;
     virtual void makeElementsBig(int factor) override;
@@ -31,5 +31,6 @@ private:
     int _fontSize=_radius;      //字体大小
     int k;
     int mm=100;
+    int n_=100;
 };
 #endif // RBTREESIM_H

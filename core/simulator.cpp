@@ -18,12 +18,27 @@ void Simulator::setPixmap(QPixmap *p)
     p->fill();
 }
 
-bool Simulator::nextFrame()
+bool Simulator::hasAnimation() const
+{
+    return false;
+}
+
+void Simulator::nextFrame()
 {
 
 }
 
 void Simulator::animationStart()
+{
+
+}
+
+void Simulator::saveStatus()
+{
+
+}
+
+void Simulator::restore()
 {
 
 }

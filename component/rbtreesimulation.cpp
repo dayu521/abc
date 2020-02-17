@@ -24,6 +24,7 @@ void RBtreeSimulation::produceActionData()
         if(insert(x))
             _qvectorForData<<x;
     }
+    currentActionNumber=_arrayForOrder.size();
 }
 
 void RBtreeSimulation::clearActionData()
@@ -38,6 +39,10 @@ void RBtreeSimulation::clearActionData()
     qDeleteAll(fakeNodeContainer);
     fakeNodeContainer.clear();
     fakeNodeContainer.insert(fakeNIL->_value,fakeNIL);
+
+    currentAction=0;
+    currentAnmIndex=0;
+    currentAnmNumber=0;
 }
 
 QWidget *RBtreeSimulation::getUi()
@@ -56,7 +61,7 @@ void RBtreeSimulation::setPixmap(QPixmap *p)
     pix->fill();
 }
 
-void RBtreeSimulation::currentSnapshot(int n_) const
+void RBtreeSimulation::currentSnapshot() const
 {
     QPainter pp(pix);
     pix->fill();
@@ -66,7 +71,7 @@ void RBtreeSimulation::currentSnapshot(int n_) const
     pp.setFont(font);
     drawAllElement(pp,fakeRoot);
     pp.end();
-    auto x=n_-1;
+    auto x=currentAction-1;
     if(_arrayForOrder[x]._ope==Operator::Search)
         drawCurrentNodeItem(_searchNodeItem);
 }
@@ -76,10 +81,10 @@ int RBtreeSimulation::actionNumber() const
     return _arrayForOrder.size();
 }
 
-void RBtreeSimulation::nextAction(int n_)
+void RBtreeSimulation::nextAction()
 {
-    currentAction=n_;
-    dispatchActionAndDraw(_arrayForOrder[n_]);
+    dispatchActionAndDraw();
+//    currentAction++;
 }
 
 QSize RBtreeSimulation::calculationMinPixSize()
@@ -102,16 +107,58 @@ void RBtreeSimulation::prepareReplay()
     fakeRoot=fakeNIL;
 
     fakeSentinelNode->_prev=fakeSentinelNode->_next=fakeSentinelNode;
+
+    currentAction=0;
+    currentAnmIndex=0;
 }
 
-bool RBtreeSimulation::nextFrame()
+void RBtreeSimulation::nextFrame()
 {
-    return false;
+    if(!hasAnimation){
+        nextAction();
+//        hasAnimation=true;
+    }else{
+        auto & action=_arrayForOrder[currentAction];
+        switch (action._ope) {
+        case Operator::Search:{
+            if(currentAnmIndex>=currentAnmNumber){
+                drawCurrentNodeItem(_searchNodeItem);
+                hasAnimation=false;
+                currentAction++;
+            }
+            QPainter pp(pix);
+            pp.translate(0,_diameter/2);
+            QFont font = pp.font();
+            font.setPixelSize(_fontSize);
+            pp.setFont(font);
+            auto & _nodeItem=_searchNodeItem->_parent;
+            pp.setPen(QPen(Qt::blue,30));
+            pp.drawLine(_nodeItem->x*_diameter/2,_nodeItem->y*_nodeLineHeight,(_nodeItem->x+xLine)*_diameter/2,(_nodeItem->y+yLine)*_nodeLineHeight);
+            pp.setPen(Qt::black);
+            pp.setBrush(_nodeItem->color==Red?Qt::red:Qt::black);
+            pp.drawEllipse(QPoint(_nodeItem->x*_diameter/2,_nodeItem->y*_nodeLineHeight),_radius+5,_radius+5);
+            pp.setBrush(_searchNodeItem->color==Red?Qt::red:Qt::black);
+            pp.drawEllipse(QPoint(_searchNodeItem->x*_diameter/2,_searchNodeItem->y*_nodeLineHeight),_radius,_radius);
+            pp.setPen(Qt::white);
+            pp.drawText(QRect(_nodeItem->x*_diameter/2-_radius,_nodeItem->y*_nodeLineHeight-_radius,_diameter,_diameter),Qt::AlignCenter,QString::number(_nodeItem->_value));
+            pp.drawText(QRect(_searchNodeItem->x*_diameter/2-_radius,_searchNodeItem->y*_nodeLineHeight-_radius,_diameter,_diameter),Qt::AlignCenter,QString::number(_searchNodeItem->_value));
+            currentAnmIndex++;
+        }
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 void RBtreeSimulation::animationStart()
 {
 
+}
+
+bool RBtreeSimulation::isOver() const
+{
+    return currentAction>=currentActionNumber;
 }
 
 void RBtreeSimulation::searchANM()
@@ -431,39 +478,49 @@ void RBtreeSimulation::removeFixUpOfLostOfBlack(Node<int> *root)
     _arrayForOrder.append({Operator::ChangeColor,{root->item,1,-1,2,-1,2}});
 }
 
-void RBtreeSimulation::dispatchActionAndDraw(RBtreeSimulation::Action &action)
+void RBtreeSimulation::dispatchActionAndDraw()
 {
+    auto & action=_arrayForOrder[currentAction];
     switch (action._ope) {
         case Operator::Search:{
                 auto x=search(action);
-                auto now=_searchNodeItem;
-                auto before=_searchNodeItem->_parent;
-                drawCurrentNodeItem(x);
+//                drawCurrentNodeItem(x);
+                currentAnmNumber=10;
+                xLine=(_searchNodeItem->x-_searchNodeItem->xParent)/currentAnmNumber;
+                yLine=(_searchNodeItem->y-_searchNodeItem->yParent)/currentAnmNumber;
+                currentAnmIndex=0;
+                hasAnimation=true;
             }
             break;
         case Operator::Add:
             add(action);
             drawAllElement();
+            currentAction++;
             break;
         case Operator::Rotate:
             rotate(action);
             drawAllElement();
+            currentAction++;
             break;
         case Operator::Substitute:
             substitute(action);
             drawAllElement();
+            currentAction++;
             break;
         case Operator::ChangeColor:{
                 auto arrayof3=changeColor(action);
                 recolorNodeItem({arrayof3.a[0],arrayof3.a[1],arrayof3.a[2]});
             }
+        currentAction++;
             break;
         case Operator::NextValue:
             showNextValue();
+            currentAction++;
             break;
         case Operator::Done:
             done(action);
             drawAllElement();
+            currentAction++;
             break;
     }
 }
@@ -531,6 +588,11 @@ void RBtreeSimulation::paintColor(RBtreeSimulation::FakeNode *root, QPainter &pp
     pp.setPen(Qt::white);
     pp.drawText(QRect(root->x*_diameter/2-_radius,root->y*_nodeLineHeight-_radius,_diameter,_diameter),Qt::AlignCenter,QString::number(root->_value));
     pp.setPen(Qt::black);
+}
+
+void RBtreeSimulation::animation()
+{
+
 }
 
 RBtreeSimulation::FakeNode *RBtreeSimulation::search(RBtreeSimulation::Action &action)

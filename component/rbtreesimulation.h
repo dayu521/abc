@@ -19,14 +19,15 @@ public:
     virtual QWidget *getUi() override;
     virtual QString getName() const override;
     virtual void setPixmap(QPixmap *) override;
-    virtual void currentSnapshot(int n_) const override;
+    virtual void currentSnapshot() const override;
     virtual int actionNumber() const override;
-    virtual void nextAction(int n_) override;
+    virtual void nextAction() override;
     virtual QSize calculationMinPixSize() override;
     virtual void makeElementsBig(int factor) override;
     virtual void prepareReplay() override;
-    virtual bool nextFrame() override;
+    virtual void nextFrame() override;
     virtual void animationStart() override;
+    virtual bool isOver()const override;
 private:
     void searchANM();
 private:
@@ -44,6 +45,13 @@ private:
     QHash<int, FakeNode *> fakeNodeContainer;    //持有绘图树节点
     QQueue<FakeNode *> fakeNodeQueue;       //用来进行层序遍历,然后设置每个绘图节点的y轴坐标
 
+    int currentAnmNumber=0;
+    int currentAnmIndex=0;
+    bool hasAnimation=false;
+
+    double xLine=0;
+    double yLine=0;
+
     struct Status;
     Status * current;
     Status * next;
@@ -57,7 +65,6 @@ private:
 
     struct Action;
     QVector<Action> _arrayForOrder;     //保存的一系列操作
-    int currentAction;
     //红黑树颜色
     enum Color { Red, Black };
     //红黑树节点
@@ -172,13 +179,16 @@ private:
     Node<int> *NIL;     //红黑树的哨兵节点
 
     //绘图
-    void dispatchActionAndDraw(Action &action);
+    void dispatchActionAndDraw();
     void drawAllElement(QPainter &_painter, FakeNode *_nodeItem)const;
     void drawAllElement()const;
     void drawCurrentNodeItem(FakeNode * _nodeItem)const;
     void paintColor(FakeNode *root,QPainter & pp,int dx=0)const;
     template<typename T>
     void recolorNodeItem(std::initializer_list<T> lists)const;
+
+    //动画
+    void animation();
 
     FakeNode *search(Action &action);
     void add(Action &action);

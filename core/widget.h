@@ -59,8 +59,7 @@ private:
     int currentActionNumber=0;
 
     QVector<Fufu> simContainer;
-    QPointer<QTimer> actionTimer;
-    QPointer<QTimer> animationTimer;
+    QPointer<QTimer> timeLine;
     QPointer<QTimer> throttleTimer;     //节流计时器
     bool isctl;
     int factor=5;

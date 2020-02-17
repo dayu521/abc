@@ -25,7 +25,7 @@ Widget::Widget(QWidget *parent)
 
 void Widget::addSimulator(std::initializer_list<Fufu> list_)
 {
-//    std::copy(list_.begin(),list_.end(),simContainer);
+    ui->menuList->disconnect();//先断开信号连接
     int i_=simContainer.size();
     for(auto x_:list_){
         simContainer.append(x_);
@@ -34,7 +34,13 @@ void Widget::addSimulator(std::initializer_list<Fufu> list_)
         ui->menuList->insertItem(index_,x_.sim->getName());//第一次也将触发currentIndexChanged信号
         i_++;
     }
-    changeSimulator(0);
+    //恢复信号连接
+    connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[=](int x){
+        timeLine->stop();
+        changeSimulator(x);
+    });
+    currentSimulator=simContainer[0].sim.get();
+    currentSimulatorIndex=0;
 }
 
 Widget::~Widget()
@@ -56,7 +62,7 @@ void Widget::initUI()
     globalSetting=new SettingPane(settings,this);
     globalSetting->installEventFilter(this);
     connect(globalSetting,&SettingPane::changeAnimationSpeed,[=](int x_){
-        actionTimer->setInterval(x_);
+        timeLine->setInterval(x_);
     });
 
     dataInputPane=new QStackedWidget();
@@ -131,7 +137,7 @@ void Widget::initAction()
     connect(autop_Act,&QAction::triggered,[=](bool checked){
         if(!checked){
             mode=Manual;
-            actionTimer->stop();
+            timeLine->stop();
             ui->textBrowser->append(tr("关闭自动放映:请使用 [ 和 ] 进行放映"));
         }else{
             mode=Automatic;
@@ -154,35 +160,21 @@ void Widget::initAction()
 
 void Widget::prepare()
 {
-    actionTimer=new QTimer(this);
-    actionTimer->setSingleShot(true);
-    connect(actionTimer,&QTimer::timeout,[=](){
-        if(currentActionIndex>=currentActionNumber){
-            actionTimer->stop();
+    timeLine=new QTimer(this);
+    timeLine->setInterval(settings.animationInterval);
+    connect(timeLine,&QTimer::timeout,[=](){
+        if(currentSimulator->isOver()){
+            timeLine->stop();
             ui->textBrowser->append(tr("放映完成"));
             return ;
         }
-        currentSimulator->nextAction(currentActionIndex);
-        currentActionIndex++;
-        ui->rightContainerWidget->update();
-        currentSimulator->animationStart();
-        animationTimer->start();
-    });
-
-    animationTimer=new QTimer(this);
-    animationTimer->setInterval(settings.animationInterval);
-    connect(animationTimer,&QTimer::timeout,[=](){
-        if(!currentSimulator->nextFrame()){
-            animationTimer->stop();
-            actionTimer->start();
-            return ;
-        }
-
+        currentSimulator->nextFrame();
         ui->rightContainerWidget->update();
     });
+
 
     connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[=](int x){
-        actionTimer->stop();
+        timeLine->stop();
         changeSimulator(x);
     });
 
@@ -192,7 +184,7 @@ void Widget::prepare()
         auto size_=currentSimulator->calculationMinPixSize();
         ui->rightContainerWidget->makeLager(size_.width(),size_.height());
         ui->rightContainerWidget->setPixmapSource(currentSimulator);
-        currentSimulator->currentSnapshot(currentActionIndex);
+        currentSimulator->currentSnapshot();
         ui->rightContainerWidget->update();
     });
     connect(this,&Widget::changeElementsSize,[this](int x_){
@@ -206,11 +198,11 @@ void Widget::prepare()
 void Widget::changeSimulator(int index_)
 {
     //保存当前模拟器状态,以待恢复
-    simContainer[currentSimulatorIndex].frameStatusIndex=currentActionIndex;
+    currentSimulator->saveStatus();
     //恢复新模拟器状态
-    currentActionIndex=simContainer[index_].frameStatusIndex;
     currentSimulatorIndex=index_;
     currentSimulator=simContainer[index_].sim.get();
+    currentSimulator->restore();
     //相应的控制面板变更
     dataInputPane->setCurrentIndex(index_);
     dataInputPane->resize(dataInputPane->currentWidget()->size());
@@ -267,8 +259,8 @@ void Widget::mousePressEvent(QMouseEvent *event)
     }
     if(mode==Automatic){
         if(event->button()==Qt::LeftButton){
-            animationTimer->isActive()?animationTimer->stop():animationTimer->start();
-            ui->textBrowser->append(animationTimer->isActive()?tr("开始"):tr("暂停"));
+            timeLine->isActive()?timeLine->stop():timeLine->start();
+            ui->textBrowser->append(timeLine->isActive()?tr("开始"):tr("暂停"));
             event->accept();
         }
     }
@@ -305,5 +297,5 @@ void Widget::on_startBtn_clicked()
 
 void Widget::on_horizontalSlider_valueChanged(int value)
 {
-    animationTimer->setInterval(value);
+    timeLine->setInterval(value);
 }

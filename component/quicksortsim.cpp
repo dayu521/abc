@@ -48,9 +48,8 @@ QString QuickSortSimulation::getName() const
     return "快速排序";
 }
 
-void QuickSortSimulation::currentSnapshot(int n_) const
+void QuickSortSimulation::currentSnapshot() const
 {
-    Q_UNUSED(n_)
     pix->fill();
     QPainter p(pix);
 //    auto f_=p.font();
@@ -69,9 +68,9 @@ int QuickSortSimulation::actionNumber() const
     return 10;
 }
 
-void QuickSortSimulation::nextAction(int n_)
+void QuickSortSimulation::nextAction()
 {
-    Q_UNUSED(n_)
+
 }
 
 QSize QuickSortSimulation::calculationMinPixSize()

@@ -44,22 +44,34 @@ public:
     virtual void setPixmap(QPixmap *);
 
     //获取当前action快照.例如,更改大小后需要重绘
-    virtual void currentSnapshot(int n_)const=0;
+    virtual void currentSnapshot()const=0;
 
     //当前模拟的action的总量
     virtual int actionNumber()const=0;
 
     //执行下一个连续的action
-    virtual void nextAction(int n_)=0;
+    virtual void nextAction()=0;
+
+    //返回模拟是否结束
+    virtual bool isOver()const{return currentAction>=currentActionNumber;}
+
+    //是否有动画
+    virtual bool hasAnimation()const;
 
     //动画的下一帧
-    virtual bool nextFrame();
+    virtual void nextFrame();
 
     //开始某个动画,做一些准备.
     virtual void animationStart();
 
     //返回当前可容纳所有内容的最小大小.例如,显示控件大小必定至少等于此大小
     virtual QSize calculationMinPixSize()=0;
+
+    //保存状态
+    virtual void saveStatus();
+
+    //恢复
+    virtual void restore();
 //signals:
 //    void pixmapSizeChanged(int w_,int h_);
 //    void simulationFinished();
@@ -67,6 +79,8 @@ private:
 
 protected:
     QPixmap *pix;
+    int currentAction=0;
+    int currentActionNumber=0;
 };
 
 #endif // SIMULATOR_H
