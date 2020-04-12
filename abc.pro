@@ -10,7 +10,7 @@ TARGET = abc
 INCLUDEPATH += . core component
 
 #可执行文件放在此目录,即当前工程目录
-DESTDIR =$$PWD
+#DESTDIR =$$PWD
 
 #msvc编译器识别正常utf-8
 msvc {
