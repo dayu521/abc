@@ -5,9 +5,10 @@
 #qt5.13.2默认启动支持c++14,因此不需要CONFIG +=c++14
 
 TEMPLATE = app
+CONFIG +=c++17
 QT +=widgets
 TARGET = abc
-INCLUDEPATH += . core component
+INCLUDEPATH += . core component utils
 
 #可执行文件放在此目录,即当前工程目录
 #DESTDIR =$$PWD
@@ -36,7 +37,9 @@ HEADERS += \
            core/myscreen.h \
            core/setting.h \
            core/simulator.h \
-           core/widget.h
+           core/widget.h \
+           utils/convenience.h \
+           utils/myexception.h
 FORMS += core/form.ui core/widget.ui
 SOURCES += \
            component/demosim.cpp \
@@ -48,7 +51,8 @@ SOURCES += \
            core/myscreen.cpp \
            core/setting.cpp \
            core/simulator.cpp \
-           core/widget.cpp
+           core/widget.cpp \
+           utils/myexception.cpp
 TRANSLATIONS +=abc_en_US.ts \
             abc_zh_CN.ts \
 

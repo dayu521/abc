@@ -3,6 +3,7 @@
 #include<QPixmap>
 #include<QtDebug>
 #include"simulator.h"
+#include"myexception.h"
 
 MyScreen::MyScreen(QWidget *parent) : QWidget(parent)
 {
@@ -25,8 +26,10 @@ void MyScreen::setPixmapSource(Simulator *x_)
 
 //----<---current--->----
 //    left        right
-void MyScreen::makeLager(int w_, int h_)
+void MyScreen::changeCanvasSize(int w_, int h_)
 {
+    if(pixContainer.size()==MAXCOUNTS)
+        throw Util::TooMuchException();
     auto maxW_=w_;
     auto maxH_=h_;
     auto cur_=currentPixIndex;

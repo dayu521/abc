@@ -15,9 +15,11 @@ int main(int argc, char *argv[])
     if(tr.load(QLocale(),QLatin1String("fuck"),QLatin1String("_")))
         a.installTranslator(&tr);
     Widget w;
-    w.addSimulator({{std::shared_ptr<Simulator>(new RBtreeSimulation)},
-                    {std::shared_ptr<Simulator>(new DemoSim)},
-                    {std::shared_ptr<Simulator>(new QuickSortSimulation)}});
+    w.addSimulator({
+                       {std::make_shared<RBtreeSimulation>()},
+                       {std::make_shared<DemoSim>()},
+                       {std::make_shared<QuickSortSimulation>()}
+                   });
     w.show();
     return a.exec();
 }

@@ -20,7 +20,7 @@ public:
         int dx;
     };
 public:
-    Simulator();
+    explicit Simulator();
     Simulator(const Simulator &)=delete;
     virtual ~Simulator();
     //使每个组成图片的像素变多,从而变大元素,详见piece文件对变大的简单辨别.

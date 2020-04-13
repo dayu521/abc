@@ -5,7 +5,7 @@
 class MazeSimulation
 {
 public:
-    MazeSimulation();
+    explicit MazeSimulation();
 };
 
 #endif // MAZESIM_H

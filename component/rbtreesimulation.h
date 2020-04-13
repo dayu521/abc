@@ -1,6 +1,7 @@
 #ifndef RBTREESIMULATION_H
 #define RBTREESIMULATION_H
 #include "simulator.h"
+#include "convenience.h"
 #include<QHash>
 #include<QQueue>
 class QPainter;
@@ -9,7 +10,7 @@ class QPainter;
 class RBtreeSimulation :public Simulator
 {
 public:
-    RBtreeSimulation();
+    explicit RBtreeSimulation();
     ~RBtreeSimulation();
 
     // Simulator interface
@@ -156,7 +157,6 @@ private:
          *      索引2:被替换节点的原始节点,开始赋值的y
          *  注意:这种方式的作用不好说清,是不是换一种麻烦的代码但可读性较高的算法呢?
          */
-    struct SomeNodeItem{FakeNode * a[3];};
 private:
     //红黑树
     void initialTree();
@@ -185,7 +185,7 @@ private:
     void drawCurrentNodeItem(FakeNode * _nodeItem)const;
     void paintColor(FakeNode *root,QPainter & pp,int dx=0)const;
     template<typename T>
-    void recolorNodeItem(std::initializer_list<T> lists)const;
+    void recolorNodeItem(T lists)const;
 
     //动画
     void animation();
@@ -193,7 +193,11 @@ private:
     FakeNode *search(Action &action);
     void add(Action &action);
     void rotate(Action &action);
-    SomeNodeItem  changeColor(Action &action);
+
+
+    template<typename ...T>
+    using FakeNodeTuple=std::tuple<T...>;
+    Util::TupleForArray<FakeNode*,3>  changeColor(Action &action);
     void showNextValue();
     void substitute(Action &action);
     void done(Action &action);

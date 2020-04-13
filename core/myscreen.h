@@ -1,8 +1,11 @@
 #ifndef MYSCREEN_H
 #define MYSCREEN_H
 #include<QWidget>
-class Simulator;
 
+class Simulator;
+namespace {
+    constexpr unsigned short MAXCOUNTS=8;
+}
 class MyScreen : public QWidget
 {
     Q_OBJECT
@@ -10,7 +13,7 @@ public:
     explicit MyScreen(QWidget *parent = nullptr);
     ~MyScreen() override;
     void setPixmapSource(Simulator *);
-    void makeLager(int w_,int h_);
+    void changeCanvasSize(int w_,int h_);
     void initMesg(const QString s="请先进行数据模拟,生成绘图数据");
 signals:
 

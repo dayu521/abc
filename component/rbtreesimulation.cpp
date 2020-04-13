@@ -508,8 +508,7 @@ void RBtreeSimulation::dispatchActionAndDraw()
             currentAction++;
             break;
         case Operator::ChangeColor:{
-                auto arrayof3=changeColor(action);
-                recolorNodeItem({arrayof3.a[0],arrayof3.a[1],arrayof3.a[2]});
+                recolorNodeItem(changeColor(action));
             }
         currentAction++;
             break;
@@ -525,6 +524,7 @@ void RBtreeSimulation::dispatchActionAndDraw()
     }
 }
 
+//深度优先
 void RBtreeSimulation::drawAllElement(QPainter &_painter, RBtreeSimulation::FakeNode *_nodeItem) const
 {
     if(_nodeItem!=fakeNIL){
@@ -636,19 +636,20 @@ void RBtreeSimulation::rotate(RBtreeSimulation::Action &action)
     setY();
 }
 
-RBtreeSimulation::SomeNodeItem RBtreeSimulation::changeColor(RBtreeSimulation::Action &action)
+Util::TupleForArray<RBtreeSimulation::FakeNode *, 3> RBtreeSimulation::changeColor(RBtreeSimulation::Action &action)
 {
     int i=0;
-    SomeNodeItem forReturn{{}};
+    FakeNode * a[3]={};
     while(i<3){
         auto colorValue=action.array[2*i+1];
         if(colorValue>1)
             break;
-        forReturn.a[i]=fakeNodeContainer.value(action.array[2*i]);
-        forReturn.a[i]->color=colorValue==0?Red:Black;
+        a[i]=fakeNodeContainer.value(action.array[2*i]);
+        a[i]->color=colorValue==0?Red:Black;
         i++;
     }
-    return forReturn;
+    auto x=Util::make_TupleForArray<FakeNode *>(a,3);
+    return std::make_tuple(a[0],a[1],a[2]);
 }
 
 void RBtreeSimulation::showNextValue()
@@ -775,13 +776,15 @@ void RBtreeSimulation::rotationWithRightChildForNodeItem(RBtreeSimulation::FakeN
 }
 
 template<typename T>
-void RBtreeSimulation::recolorNodeItem(std::initializer_list<T> lists) const
+void RBtreeSimulation::recolorNodeItem(T lists) const
 {
     QPainter pp(pix);
     pp.translate(0,_diameter/2);
     QFont font = pp.font();
     font.setPixelSize(_fontSize);
     pp.setFont(font);
-    for(auto x:lists)
-        paintColor(x,pp);
+    auto [a,b,c]=lists;
+    paintColor(a,pp);
+    paintColor(b,pp);
+    paintColor(c,pp);
 }

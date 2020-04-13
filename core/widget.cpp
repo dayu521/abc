@@ -35,7 +35,7 @@ void Widget::addSimulator(std::initializer_list<Fufu> list_)
         i_++;
     }
     //恢复信号连接
-    connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[=](int x){
+    connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[this](int x){
         timeLine->stop();
         changeSimulator(x);
     });
@@ -61,7 +61,7 @@ void Widget::initUI()
 {
     globalSetting=new SettingPane(settings,this);
     globalSetting->installEventFilter(this);
-    connect(globalSetting,&SettingPane::changeAnimationSpeed,[=](int x_){
+    connect(globalSetting,&SettingPane::changeAnimationSpeed,[this](int x_){
         timeLine->setInterval(x_);
     });
 
@@ -82,7 +82,7 @@ void Widget::initAction()
 
     // =fuc
     auto startAct=menu->addAction(tr("生成模拟数据"));
-    connect(startAct,&QAction::triggered,[=](){
+    connect(startAct,&QAction::triggered,[this](){
 //        simContainer[currentSimulatorIndex].frameStatusIndex=0;
         currentSimulator->clearActionData();
         ui->textBrowser->append(tr("清除已模拟的数据"));
@@ -90,7 +90,7 @@ void Widget::initAction()
         ui->textBrowser->append(tr("[%1]模拟数据生成完成").arg(currentSimulator->getName()));
         //给模拟器更新画布pixmap
         auto size_=currentSimulator->calculationMinPixSize();
-        ui->rightContainerWidget->makeLager(size_.width(),size_.height());
+        ui->rightContainerWidget->changeCanvasSize(size_.width(),size_.height());
         ui->rightContainerWidget->setPixmapSource(currentSimulator);
         currentActionNumber=currentSimulator->actionNumber();
         currentActionIndex=0;
@@ -98,7 +98,7 @@ void Widget::initAction()
     });
 
     auto restart_Act=menu->addAction(tr("重新放映"));
-    connect(restart_Act,&QAction::triggered,[=](){
+    connect(restart_Act,&QAction::triggered,[this](){
         currentActionIndex=0;
         currentSimulator->prepareReplay();
         ui->rightContainerWidget->initMesg(tr("请开始重新进行放映"));
@@ -119,12 +119,12 @@ void Widget::initAction()
 //    });
 
     auto set_Act=menu->addAction(tr("配置设置"));
-    connect(set_Act,&QAction::triggered,[=](bool){
+    connect(set_Act,&QAction::triggered,[this](bool){
         globalSetting->move(width()/2-globalSetting->width()/2,height()/2-globalSetting->height()/2);
         globalSetting->show();
     });
     auto data_InputAct=menu->addAction(tr("数据设定面板"));
-    connect(data_InputAct,&QAction::triggered,[=](bool){
+    connect(data_InputAct,&QAction::triggered,[this](bool){
         dataInputPane->setCurrentIndex(ui->menuList->currentIndex());
         dataInputPane->show();
     });
@@ -134,7 +134,7 @@ void Widget::initAction()
     autop_Act->setCheckable(true);
     autop_Act->setChecked(true);
     mode=Automatic;
-    connect(autop_Act,&QAction::triggered,[=](bool checked){
+    connect(autop_Act,&QAction::triggered,[this](bool checked){
         if(!checked){
             mode=Manual;
             timeLine->stop();
@@ -149,7 +149,7 @@ void Widget::initAction()
     auto show_SideAct=menu_sub1->addAction(tr("显示侧栏"));
     show_SideAct->setCheckable(true);
     show_SideAct->setChecked(true);
-    connect(show_SideAct,&QAction::triggered,[=](bool checked){
+    connect(show_SideAct,&QAction::triggered,[this](bool checked){
         if(checked){
             ui->leftContainerWidget->show();
         } else
@@ -162,7 +162,7 @@ void Widget::prepare()
 {
     timeLine=new QTimer(this);
     timeLine->setInterval(settings.animationInterval);
-    connect(timeLine,&QTimer::timeout,[=](){
+    connect(timeLine,&QTimer::timeout,[this](){
         if(currentSimulator->isOver()){
             timeLine->stop();
             ui->textBrowser->append(tr("放映完成"));
@@ -173,7 +173,7 @@ void Widget::prepare()
     });
 
 
-    connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[=](int x){
+    connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[this](int x){
         timeLine->stop();
         changeSimulator(x);
     });
@@ -181,15 +181,17 @@ void Widget::prepare()
     throttleTimer=new QTimer(this);
     throttleTimer->setSingleShot(true);
     connect(throttleTimer,&QTimer::timeout,[this](){
+        if(simContainer[currentSimulatorIndex].stat==Status::Unused)
+            return ;
         auto size_=currentSimulator->calculationMinPixSize();
-        ui->rightContainerWidget->makeLager(size_.width(),size_.height());
+        ui->rightContainerWidget->changeCanvasSize(size_.width(),size_.height());
         ui->rightContainerWidget->setPixmapSource(currentSimulator);
         currentSimulator->currentSnapshot();
         ui->rightContainerWidget->update();
     });
     connect(this,&Widget::changeElementsSize,[this](int x_){
         currentSimulator->makeElementsBig(x_);
-        throttleTimer->start(200);
+        throttleTimer->start(200);      //清除重置之前未完成的计时器，开始新计时
     });
 
     ui->horizontalSlider->setValue(settings.animationInterval);

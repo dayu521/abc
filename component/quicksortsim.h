@@ -7,7 +7,7 @@
 class QuickSortSimulation:public Simulator
 {
 public:
-    QuickSortSimulation();
+    explicit QuickSortSimulation();
     void quickSort(QVector<int> & v){quickSort(v,0,v.size()-1);}
     // Simulator interface
 public:

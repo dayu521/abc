@@ -5,7 +5,7 @@
 class DemoSim : public Simulator
 {
 public:
-    DemoSim(QString name_="画正方形例子");
+    explicit DemoSim(QString name_=QStringLiteral("画正方形例子"));
     ~DemoSim();
     // Simulator interface
 public:

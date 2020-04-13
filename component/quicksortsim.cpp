@@ -45,7 +45,7 @@ void QuickSortSimulation::prepareReplay()
 
 QString QuickSortSimulation::getName() const
 {
-    return "快速排序";
+    return QStringLiteral("快速排序");
 }
 
 void QuickSortSimulation::currentSnapshot() const
