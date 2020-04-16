@@ -184,8 +184,7 @@ private:
     void drawAllElement()const;
     void drawCurrentNodeItem(FakeNode * _nodeItem)const;
     void paintColor(FakeNode *root,QPainter & pp,int dx=0)const;
-    template<typename T>
-    void recolorNodeItem(T lists)const;
+    void recolorNodeItem(Util::TupleWrapArray<FakeNode*,3> tuple_)const;
 
     //动画
     void animation();
@@ -194,10 +193,7 @@ private:
     void add(Action &action);
     void rotate(Action &action);
 
-
-    template<typename ...T>
-    using FakeNodeTuple=std::tuple<T...>;
-    Util::TupleForArray<FakeNode*,3>  changeColor(Action &action);
+    Util::TupleWrapArray<FakeNode*,3>  changeColor(Action &action);
     void showNextValue();
     void substitute(Action &action);
     void done(Action &action);

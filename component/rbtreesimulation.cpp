@@ -636,7 +636,7 @@ void RBtreeSimulation::rotate(RBtreeSimulation::Action &action)
     setY();
 }
 
-Util::TupleForArray<RBtreeSimulation::FakeNode *, 3> RBtreeSimulation::changeColor(RBtreeSimulation::Action &action)
+Util::TupleWrapArray<RBtreeSimulation::FakeNode*,3> RBtreeSimulation::changeColor(RBtreeSimulation::Action &action)
 {
     int i=0;
     FakeNode * a[3]={};
@@ -648,8 +648,8 @@ Util::TupleForArray<RBtreeSimulation::FakeNode *, 3> RBtreeSimulation::changeCol
         a[i]->color=colorValue==0?Red:Black;
         i++;
     }
-    auto x=Util::make_TupleForArray<FakeNode *>(a,3);
-    return std::make_tuple(a[0],a[1],a[2]);
+    // 等价于return std::make_tuple(a[0],a[1],a[2]);
+    return Util::make_TupleForArray(a);
 }
 
 void RBtreeSimulation::showNextValue()
@@ -775,15 +775,14 @@ void RBtreeSimulation::rotationWithRightChildForNodeItem(RBtreeSimulation::FakeN
     root = right_child;
 }
 
-template<typename T>
-void RBtreeSimulation::recolorNodeItem(T lists) const
+void RBtreeSimulation::recolorNodeItem(Util::TupleWrapArray<FakeNode *, 3> tuple_) const
 {
     QPainter pp(pix);
     pp.translate(0,_diameter/2);
     QFont font = pp.font();
     font.setPixelSize(_fontSize);
     pp.setFont(font);
-    auto [a,b,c]=lists;
+    auto [a,b,c]=tuple_;
     paintColor(a,pp);
     paintColor(b,pp);
     paintColor(c,pp);
