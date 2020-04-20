@@ -1,6 +1,7 @@
 #ifndef MYSCREEN_H
 #define MYSCREEN_H
 #include<QWidget>
+#include<memory>
 
 class Simulator;
 namespace {
@@ -14,7 +15,7 @@ public:
     ~MyScreen() override;
     void setPixmapSource(Simulator *);
     void changeCanvasSize(int w_,int h_);
-    void initMesg(const QString s="请先进行数据模拟,生成绘图数据");
+    void initMesg(const QString & s="请先进行数据模拟,生成绘图数据");
 signals:
 
 public slots:
@@ -23,9 +24,9 @@ public slots:
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
 private:
-    QVector<QPixmap *> pixContainer;
+    QVector<std::shared_ptr<QPixmap>> pixContainer;
     int currentPixIndex=0;
-    QPixmap * pix;
+    std::shared_ptr<QPixmap>  pix;
 };
 
 #endif // MYSCREEN_H

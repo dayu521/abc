@@ -52,10 +52,10 @@ QWidget *RBtreeSimulation::getUi()
 
 QString RBtreeSimulation::getName() const
 {
-    return "红黑树";
+    return QStringLiteral("红黑树");
 }
 
-void RBtreeSimulation::setPixmap(QPixmap *p)
+void RBtreeSimulation::setPixmap(std::shared_ptr<QPixmap> p)
 {
     pix=p;
     pix->fill();
@@ -63,7 +63,7 @@ void RBtreeSimulation::setPixmap(QPixmap *p)
 
 void RBtreeSimulation::currentSnapshot() const
 {
-    QPainter pp(pix);
+    QPainter pp(pix.get());
     pix->fill();
     pp.translate(0,_diameter/2);
     QFont font = pp.font();
@@ -126,7 +126,7 @@ void RBtreeSimulation::nextFrame()
                 hasAnimation=false;
                 currentAction++;
             }
-            QPainter pp(pix);
+            QPainter pp(pix.get());
             pp.translate(0,_diameter/2);
             QFont font = pp.font();
             font.setPixelSize(_fontSize);
@@ -548,7 +548,7 @@ void RBtreeSimulation::drawAllElement(QPainter &_painter, RBtreeSimulation::Fake
 void RBtreeSimulation::drawAllElement() const
 {
     pix->fill();
-    QPainter pp(pix);
+    QPainter pp(pix.get());
     pp.translate(0,_diameter/2);
     QFont font = pp.font();
     font.setPixelSize(_fontSize);
@@ -559,7 +559,7 @@ void RBtreeSimulation::drawAllElement() const
 void RBtreeSimulation::drawCurrentNodeItem(RBtreeSimulation::FakeNode *_nodeItem) const
 {
     pix->fill();
-    QPainter pp(pix);
+    QPainter pp(pix.get());
     pp.translate(0,_diameter/2);
     QFont font = pp.font();
     font.setPixelSize(_fontSize);
@@ -777,7 +777,7 @@ void RBtreeSimulation::rotationWithRightChildForNodeItem(RBtreeSimulation::FakeN
 
 void RBtreeSimulation::recolorNodeItem(Util::TupleWrapArray<FakeNode *, 3> tuple_) const
 {
-    QPainter pp(pix);
+    QPainter pp(pix.get());
     pp.translate(0,_diameter/2);
     QFont font = pp.font();
     font.setPixelSize(_fontSize);

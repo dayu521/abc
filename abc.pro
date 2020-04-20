@@ -8,12 +8,18 @@ TEMPLATE = app
 CONFIG +=c++17
 QT +=widgets
 TARGET = abc
-INCLUDEPATH += . core component utils
+INCLUDEPATH +=  common_ui/  \
+                common_ui/ui    \
+                core_interface  \
+                core_interface/datasource   \
+                component   \
+                utils
 
 #可执行文件放在此目录,即当前工程目录
 #DESTDIR =$$PWD
 
-#msvc编译器识别正常utf-8
+#msvc编译器识别正常utf-8.
+#莫非我的vs版本太低了?
 msvc {
 	QMAKE_CFLAGS += /utf-8
 	QMAKE_CXXFLAGS += /utf-8
@@ -33,26 +39,31 @@ HEADERS += \
            component/mazesim.h \
            component/quicksortsim.h \
            component/rbtreesimulation.h \
-           core/common.h \
-           core/myscreen.h \
-           core/setting.h \
-           core/simulator.h \
-           core/widget.h \
+           common_ui/ui/myscreen.h \
+           common_ui/ui/setting.h \
+           core_interface/animation/abstract_animation.h \
+           core_interface/csimulator.h \
+           core_interface/datasource/abstract_data_source.h \
+           core_interface/simulator.h \
+           common_ui/widget.h \
            utils/convenience.h \
-           utils/myexception.h
-FORMS += core/form.ui core/widget.ui
+           utils/loki_wrap.h \
+           utils/something.h
+FORMS += common_ui/ui/form.ui common_ui/widget.ui
 SOURCES += \
            component/demosim.cpp \
            component/hanoisim.cpp \
            component/mazesim.cpp \
            component/quicksortsim.cpp \
            component/rbtreesimulation.cpp \
-           core/main.cpp \
-           core/myscreen.cpp \
-           core/setting.cpp \
-           core/simulator.cpp \
-           core/widget.cpp \
-           utils/myexception.cpp
+           core_interface/animation/abstract_animation.cpp \
+           core_interface/datasource/abstract_data_source.cpp \
+           main.cpp \
+           common_ui/ui/myscreen.cpp \
+           common_ui/ui/setting.cpp \
+           core_interface/simulator.cpp \
+           common_ui/widget.cpp \
+           utils/something.cpp
 TRANSLATIONS +=abc_en_US.ts \
             abc_zh_CN.ts \
 

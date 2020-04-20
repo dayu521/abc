@@ -9,6 +9,9 @@ namespace Util {
     public:
         explicit TooMuchException(const std::string info="数量过多"):std::range_error(info){}
     };
+
+    template<typename ...T>
+    void logExcept(const T & ...){};
 }
 
 #endif // MYEXCEPTION_H

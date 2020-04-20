@@ -13,7 +13,7 @@ public:
     virtual QString getName() const override;
     virtual void produceActionData() override;
     virtual void clearActionData() override;
-    virtual void setPixmap(QPixmap *)  override;
+    virtual void setPixmap(std::shared_ptr<QPixmap>)  override;
     virtual void currentSnapshot() const override;
     virtual QSize calculationMinPixSize() override;
     virtual void nextAction() override;

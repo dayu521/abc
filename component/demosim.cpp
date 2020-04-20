@@ -39,7 +39,7 @@ void DemoSim::clearActionData()
 
 }
 
-void DemoSim::setPixmap(QPixmap * p_)
+void DemoSim::setPixmap(std::shared_ptr<QPixmap> p_)
 {
     pix=p_;
 }
@@ -49,7 +49,7 @@ void DemoSim::currentSnapshot() const
     auto n_=this->n_;
     n_--;
     pix->fill(Qt::white);
-    QPainter p_(pix);
+    QPainter p_(pix.get());
     p_.setBrush(Qt::red);
     int y=n_/10;
     int x=n_-y*10;
@@ -72,7 +72,7 @@ void DemoSim::nextAction()
 {
     if(n_==0)
         pix->fill();
-    QPainter p_(pix);
+    QPainter p_(pix.get());
     p_.setBrush(Qt::red);
     int y=n_/10;
     int x=n_-y*10;

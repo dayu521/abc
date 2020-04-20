@@ -6,10 +6,20 @@
 
 ### 环境
 
-- qt版本5.13;
-- gcc是9.2.1版本;于openSUSE TW上测试,需要c++14以上
-- 编辑器为qt自带qtcreator,默认utf-8编码;
-- (win8.1下 vs2017也测试通过,可能ui部分会有不同)
+- Linux
+  - ArchLinux上
+    - 无要求,跟新滚动~~
+  - openSUSE TW上
+    - 无要求,跟新滚动即可
+  - 其他发行版
+    - 需要支持c++17,~~gcc是9.2.1版本;于openSUSE TW上测试,需要c++14以上~~
+    - qt版本5.13
+
+- Windows
+- win8.1下 vs2017集成环境也测试通过,可能ui部分会有不同
+- 其他
+  - 编辑器为qt自带qtcreator,默认utf-8编码
+  - 注意,utf-8编码
 
 ### 其他
 

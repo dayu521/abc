@@ -19,7 +19,7 @@ public:
     virtual void clearActionData() override;
     virtual QWidget *getUi() override;
     virtual QString getName() const override;
-    virtual void setPixmap(QPixmap *) override;
+    virtual void setPixmap(std::shared_ptr<QPixmap>) override;
     virtual void currentSnapshot() const override;
     virtual int actionNumber() const override;
     virtual void nextAction() override;

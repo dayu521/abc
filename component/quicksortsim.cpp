@@ -51,7 +51,7 @@ QString QuickSortSimulation::getName() const
 void QuickSortSimulation::currentSnapshot() const
 {
     pix->fill();
-    QPainter p(pix);
+    QPainter p(pix.get());
 //    auto f_=p.font();
 //    f_.setPixelSize(fontSize);
 //    p.setFont(f_);
