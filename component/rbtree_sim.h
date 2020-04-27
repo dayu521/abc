@@ -1,19 +1,19 @@
-#ifndef CSIMULATOR_H
-#define CSIMULATOR_H
-
-#include<memory>
+#ifndef RBTREE_H
+#define RBTREE_H
 #include"simulator.h"
 
-class Csimulator :public Simulator
-{  
+class Rbtree : public Simulator
+{
+public:
+    explicit Rbtree();
+    virtual ~Rbtree();
     // Simulator interface
 public:
-    explicit Csimulator(std::shared_ptr<FreezePainter> fp_, std::shared_ptr<FarAway> fa_);
-
     virtual void produceModelData() override;
     virtual void clearModelData() override;
     virtual void prepareReplay() override;
     virtual bool cancel() override;
+
 };
 
-#endif // CSIMULATOR_H
+#endif // RBTREE_H

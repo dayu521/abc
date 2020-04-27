@@ -78,13 +78,6 @@ namespace Util {
         return __putArray<N,T *>(DifferentType<int>(),static_cast<T *>(arr));
     }
 
-    enum struct FF:int{A,B,C};
-    template <FF a,unsigned int n>
-    auto m=a;
-
-    enum fs{};
-    template <fs,int>
-    struct ff{};
 }
 
 #endif // CONVENIENCE_H

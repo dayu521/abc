@@ -28,10 +28,13 @@ public:
     virtual std::tuple<__width,__height> calculationMinPixSize()=0;
 
     //播放动画
-    virtual void playAnimation()=0;
+    virtual void playAnimation();
 
     //停止动画
-    virtual void stopAnimation()=0;
+    virtual void stopAnimation();
+
+    //设置动画间隔
+    void setInterval(int millisecond_);
 
     //切换模拟器
     void switchS( int witch_);
@@ -41,6 +44,11 @@ public:
     {
         return sim;
     }
+    //保存状态
+    void saveStatus(int witch_);
+
+    //恢复
+    void restore(int witch_);
 
     using SimCreator=std::function<std::shared_ptr<Simulator>()>;
 
@@ -49,20 +57,27 @@ public:
 
     void creatorObject(int type_=-1);
 
+signals:
+    void haveNoData();
+public slots :
     // QWidget interface
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
 private:
-    int currentPixIndex=0;
+    int currentPixIndex{0};
     QPixmap * pix{};
     QVector<std::shared_ptr<QPixmap>> pixContainer{};
+
+    int currentSimIndex{0};
     std::shared_ptr<Simulator> sim{};
+
     //key=type,value=isAlreadyCreated,createFn
-    QHash<int,std::pair<bool,SimCreator>> objRegisters{};
+    QHash<int,std::pair<bool,SimCreator>> objRegistersContainer{};
+
     //simulator,pixId
     QVector<std::pair<std::shared_ptr<Simulator>,int>> vecSim{};
 
-    QTimer ainmationTimer{};
+    QTimer * animationTimer{};
 };
 
 template<typename T>
@@ -72,7 +87,7 @@ std::enable_if_t<std::is_base_of_v<Simulator,T>, int> FlutteringWings::registerS
     int key=-1;
     if(i==0){
         key=vecSim.size();
-        objRegisters.insert(key,std::make_pair(false,[](){std::make_shared<T>();}));
+        objRegistersContainer.insert(key,std::make_pair(false,[](){std::make_shared<T>();}));
         i++;
     }
     return key;

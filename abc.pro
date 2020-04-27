@@ -38,10 +38,12 @@ HEADERS += \
            component/hanoisim.h \
            component/mazesim.h \
            component/quicksortsim.h \
+           component/rbtree_sim.h \
            component/rbtreesimulation.h \
            common_ui/ui/myscreen.h \
            common_ui/ui/setting.h \
            core_interface/animation/abstract_animation.h \
+           core_interface/animation/rbtree_model.h \
            core_interface/csimulator.h \
            core_interface/datasource/abstract_data_source.h \
            core_interface/simulator.h \
@@ -55,10 +57,13 @@ SOURCES += \
            component/hanoisim.cpp \
            component/mazesim.cpp \
            component/quicksortsim.cpp \
+           component/rbtree_sim.cpp \
            component/rbtreesimulation.cpp \
            core_interface/animation/abstract_animation.cpp \
+           core_interface/animation/rbtree_model.cpp \
            core_interface/csimulator.cpp \
            core_interface/datasource/abstract_data_source.cpp \
+           core_interface/simulator.cpp \
            main.cpp \
            common_ui/ui/myscreen.cpp \
            common_ui/ui/setting.cpp \
