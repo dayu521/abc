@@ -8,6 +8,13 @@
 #include"setting.h"
 #include"common.h"
 #include<QPointer>
+#include"csimulator.h"
+
+class fuckas:public Csimulator<int ,fuckas>
+{
+//    enum Myaction{};
+};
+fuckas a;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }

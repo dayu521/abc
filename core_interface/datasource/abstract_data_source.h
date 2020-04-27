@@ -1,32 +1,50 @@
 #ifndef ABSTRACTDATASOURCE_H
 #define ABSTRACTDATASOURCE_H
+#include<vector>
 
-enum struct Status:unsigned char{
-    Initial,
+enum struct Status:unsigned int{
+    Uncertain,
     Ready,
-    Start,
     Running,
-    Done,
-    Over
+    GodJob,
+    Canceled,
+    Error
 };
 
-template <typename InputDataType>
-class AbstractDataSource
+class FarAway
 {
 public:
-    explicit AbstractDataSource();
+    explicit FarAway();
 
-    virtual ~AbstractDataSource();
+    FarAway(const FarAway &)=delete ;
 
-    virtual void doWork(const InputDataType &)=0;
+    virtual ~FarAway();
 
-    virtual Status status()=0;
+    virtual void init(const std::vector<int>&)=0;
+
+    virtual bool commitTask()=0;
+
+    virtual void doWork()=0;
+
+    //method+data
+    virtual void Input(const std::vector<int>&)=0;
+
+    virtual std::vector<int> & Output()=0;
+
+    virtual Status status()const=0;
+
+    bool cancel()
+    {
+        bool old=wantCancel;
+        wantCancel=!wantCancel;
+        return old;
+    }
 
 protected:
 
-    virtual void setInput()=0;
+    bool wantCancel{false};
 
-    virtual void generateRandomData()=0;
+    Status st{Status::Uncertain};
 
 };
 

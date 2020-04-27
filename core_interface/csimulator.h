@@ -4,25 +4,26 @@
 #include<memory>
 #include"simulator.h"
 
-template<typename Source>
+class FarAway;
+class FreezePainter;
+
 class Csimulator :public Simulator
 {
+
     // Simulator interface
 public:
-    virtual void makeElementsBig(int factor) override;
-    virtual void produceActionData() override;
-    virtual void clearActionData() override;
+    virtual void produceModelData() override;
+    virtual void clearModelData() override;
     virtual void prepareReplay() override;
-    virtual const char *getName() const override;
-    virtual void currentSnapshot() const override;
-    virtual int actionNumber() const override;
-    virtual void nextAction() override;
+    virtual int currentStatus() const override;
+    virtual bool cancel() override;
     virtual bool isOver() const override;
-    virtual void nextFrame() override;
-    virtual void animationStart() override;
-    virtual std::tuple<int, int> calculationMinPixSize() override;
     virtual void saveStatus() override;
     virtual void restore() override;
+private:
+    std::unique_ptr<FreezePainter> animation{};
+    std::unique_ptr<FarAway> dataSource{};
+
 };
 
 #endif // CSIMULATOR_H

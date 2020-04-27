@@ -57,11 +57,11 @@ SOURCES += \
            component/quicksortsim.cpp \
            component/rbtreesimulation.cpp \
            core_interface/animation/abstract_animation.cpp \
+           core_interface/csimulator.cpp \
            core_interface/datasource/abstract_data_source.cpp \
            main.cpp \
            common_ui/ui/myscreen.cpp \
            common_ui/ui/setting.cpp \
-           core_interface/simulator.cpp \
            common_ui/widget.cpp \
            utils/something.cpp
 TRANSLATIONS +=abc_en_US.ts \

@@ -1,36 +1,31 @@
 #include "myscreen.h"
 #include<QPainter>
 #include<QPixmap>
-#include<QtDebug>
+
 #include"simulator.h"
 #include"something.h"
+#include"rbtreesimulation.h"
+//#include<loki/Factory.h>
 
-MyScreen::MyScreen(QWidget *parent) : QWidget(parent)
+FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent)
 {
-    pixContainer.append(std::make_shared<QPixmap>(800,800));
-    pixContainer.append(std::make_shared<QPixmap>(1600,1600));
-    pix=pixContainer[currentPixIndex];
+
     initMesg();
-    resize(pix->size());
-}
-
-MyScreen::~MyScreen()
-{
-
-}
-
-void MyScreen::setPixmapSource(Simulator *x_)
-{
-    if(x_==nullptr){
-        Util::logExcept("Simulator为空!");
-        return ;
+    pixContainer.append(std::make_shared<QPixmap>(this->width(),this->height()));
+    registerSim<RBtreeSimulation>();
+    for(auto iterator:objRegisters.keys()){
+        creatorObject(iterator);
     }
-    x_->setPixmap(pix);
+}
+
+FlutteringWings::~FlutteringWings()
+{
+
 }
 
 //----<---current--->----
 //    left        right
-void MyScreen::changeCanvasSize(int w_, int h_)
+void FlutteringWings::changeCanvasSize(__width w_, __height h_)
 {
     auto maxW_=w_;
     auto maxH_=h_;
@@ -46,7 +41,7 @@ void MyScreen::changeCanvasSize(int w_, int h_)
     }
     if(cur_<currentPixIndex){
         currentPixIndex=cur_+1;
-        pix=pixContainer[cur_+1];
+        pix=pixContainer[cur_+1].get();
         resize(pix->size());
         return ;
     }
@@ -72,14 +67,14 @@ void MyScreen::changeCanvasSize(int w_, int h_)
         pixContainer.append(std::make_shared<QPixmap>(maxW_,maxH_));
     }
     currentPixIndex=cur_;
-    pix=pixContainer[cur_];
+    pix=pixContainer[cur_].get();
     resize(pix->size());
 }
 
-void MyScreen::initMesg(const QString & s)
+void FlutteringWings::initMesg(const QString & s)
 {
     pix->fill(Qt::white);
-    QPainter p(pix.get());
+    QPainter p(pix);
     auto font_=p.font();
     font_.setPixelSize(36);
     p.setFont(font_);
@@ -87,7 +82,32 @@ void MyScreen::initMesg(const QString & s)
     p.drawText(50,100,"多使用鼠标右键上下文菜单");
 }
 
-void MyScreen::paintEvent(QPaintEvent *event)
+void FlutteringWings::switchS(int witch_)
+{
+    if(witch_>vecSim.size()||witch_<0)
+        throw std::range_error("no such Simulator!");
+    else if(currentPixIndex==witch_)
+        ;
+    else{
+        currentPixIndex=witch_;
+        sim=vecSim[currentPixIndex].first;
+        pix=pixContainer[vecSim[currentPixIndex].second].get();
+    }
+}
+
+void FlutteringWings::creatorObject(int type_)
+{
+    if(!objRegisters.contains(type_))
+        throw std::runtime_error("no such Obj");
+    else if(objRegisters[type_].first)
+        ;
+    else{
+        vecSim.append(std::make_pair((objRegisters[type_].second)(),0));
+        objRegisters[type_].first=true;
+    }
+}
+
+void FlutteringWings::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
     QPainter p(this);

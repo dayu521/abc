@@ -2,6 +2,7 @@
 #define SIMULATOR_H
 //#include<memory>
 #include<tuple>
+#include<type_traits>
 
 //#include "abstract_data_source.h"
 /*
@@ -19,51 +20,30 @@ public:
 
     virtual ~Simulator();
 
-    //使每个组成图片的像素变多,从而变大元素,详见piece文件对变大的简单辨别.
-    void virtual makeElementsBig(int factor)=0;
-
     //处理模拟,生成绘图数据.所有数据都要从此函数生成,每次模拟只调用一次
-    virtual void produceActionData()=0;
+    virtual void produceModelData()=0;
 
     //清除模拟数据
-    virtual void clearActionData()=0;
+    virtual void clearModelData()=0;
 
     //准备重新放映
     virtual void prepareReplay()=0;
 
-    //显示的条目名
-    virtual const char * getName()const=0;
+    //当前模拟的状态
+    virtual int currentStatus()const=0;
 
-    //获取当前action快照.例如,更改大小后需要重绘
-    virtual void currentSnapshot()const=0;
-
-    //当前模拟的action的总量
-    virtual int actionNumber()const=0;
-
-    //执行下一个连续的action
-    virtual void nextAction()=0;
+    //取消模拟
+    virtual bool cancel()=0;
 
     //返回模拟是否结束
     virtual bool isOver()const=0;
 
-    //动画的下一帧
-    virtual void nextFrame();
-
-    //开始某个动画,做一些准备.
-    virtual void animationStart();
-
-    //返回当前可容纳所有内容的最小大小.例如,显示控件大小必定至少等于此大小(width,height)
-    virtual std::tuple<int,int> calculationMinPixSize()=0;
-
     //保存状态
-    virtual void saveStatus();
+    virtual void saveStatus()=0;
 
     //恢复
-    virtual void restore();
+    virtual void restore()=0;
 
-protected:
-//    std::shared_ptr<QPixmap> pix{};
-//    std::shared_ptr<AbstractDataSource<int>> dt{};
 };
 
 #endif // SIMULATOR_H
