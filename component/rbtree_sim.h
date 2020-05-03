@@ -9,6 +9,7 @@ public:
     virtual ~Rbtree();
     // Simulator interface
 public:
+    virtual void setInputData(int *data, int size) override;
     virtual void produceModelData() override;
     virtual void clearModelData() override;
     virtual void prepareReplay() override;

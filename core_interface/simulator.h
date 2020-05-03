@@ -1,6 +1,7 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 #include<memory>
+#include<vector>
 
 class FarAway;
 class FreezePainter;
@@ -14,13 +15,15 @@ class FreezePainter;
 class Simulator
 {
 public:
-    enum Status{Empty,Ready,Ok};
+    enum Status{Empty,UnCertain,HasModelData};
 public:
     explicit Simulator(std::shared_ptr<FreezePainter> fp_, std::shared_ptr<FarAway> fa_);
 
     Simulator(const Simulator &)=delete;
 
     virtual ~Simulator();
+    //设置输入
+    virtual void setInputData(const std::vector<int> &)=0;
 
     //生成模拟数据
     virtual void produceModelData()=0;
@@ -37,8 +40,8 @@ public:
         return st;
     }
 
-    //取消模拟
-    virtual bool cancel()=0;
+    //打断数据生成
+    virtual bool cancel();
 
     std::shared_ptr<FreezePainter> getFP()const
     {

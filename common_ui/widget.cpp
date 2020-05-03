@@ -4,6 +4,7 @@
 #include<QDebug>
 #include<QPainter>
 #include<QAction>
+#include"register_type.h"
 #include"simulator.h"
 #include<QStackedWidget>
 #include<QKeyEvent>
@@ -23,24 +24,23 @@ Widget::Widget(QWidget *parent)
     prepare();
 }
 
-void Widget::addSimulator(std::initializer_list<Fufu> list_)
+void Widget::addMapping(std::initializer_list<WidgetMappingInfo> list_)
 {
     ui->menuList->disconnect();//先断开信号连接
-    int i_=simContainer.size();
     for(auto x_:list_){
-        simContainer.append(x_);
-        simContainer[i_].id=i_;
-        int index_=dataInputPane->addWidget(x_.sim->getUi());
-        ui->menuList->insertItem(index_,x_.sim->getName());//第一次也将触发currentIndexChanged信号
-        i_++;
+        simMappingContainer.insert(x_.fd,x_);
+        int index_=dataInputPane->addWidget(new QWidget);
+        simMappingContainer[x_.fd].dataInputPaneIndex=index_;
+        ui->menuList->addItem(x_.showName);//第一次也将触发currentIndexChanged信号
+        simMappingContainer[x_.fd].menuListIndex=ui->menuList->count()-1;
     }
     //恢复信号连接
     connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[this](int x){
         timeLine->stop();
         changeSimulator(x);
     });
-    currentSimulator=simContainer[0].sim.get();
-    currentSimulatorIndex=0;
+    currentSimMapping=(list_.begin())->fd;
+    currentSimulator=Util::obj.GetObj(currentSimMapping);
 }
 
 Widget::~Widget()
@@ -83,7 +83,7 @@ void Widget::initAction()
     // =fuc
     auto startAct=menu->addAction(tr("生成模拟数据"));
     connect(startAct,&QAction::triggered,[this](){
-//        simContainer[currentSimulatorIndex].frameStatusIndex=0;
+//        ui->rightContainerWidget->
         currentSimulator->clearActionData();
         ui->textBrowser->append(tr("清除已模拟的数据"));
         currentSimulator->produceActionData();
@@ -94,7 +94,7 @@ void Widget::initAction()
         ui->rightContainerWidget->setPixmapSource(currentSimulator);
         currentActionNumber=currentSimulator->actionNumber();
         currentActionIndex=0;
-        simContainer[currentSimulatorIndex].stat=HasData;
+        simMappingContainer[currentSimMapping].stat=HasData;
     });
 
     auto restart_Act=menu->addAction(tr("重新放映"));
@@ -175,13 +175,15 @@ void Widget::prepare()
 
     connect(ui->menuList,QOverload<int>::of(&QComboBox::currentIndexChanged),[this](int x){
         timeLine->stop();
+        ui->rightContainerWidget->switchS(x);
+        currentSimulator=ui->rightContainerWidget->getS();
         changeSimulator(x);
     });
 
     throttleTimer=new QTimer(this);
     throttleTimer->setSingleShot(true);
     connect(throttleTimer,&QTimer::timeout,[this](){
-        if(simContainer[currentSimulatorIndex].stat==Status::Unused)
+        if(simMappingContainer[currentSimMapping].stat==Status::Unused)
             return ;
         auto size_=currentSimulator->calculationMinPixSize();
         ui->rightContainerWidget->changeCanvasSize(size_.width(),size_.height());
@@ -199,12 +201,6 @@ void Widget::prepare()
 
 void Widget::changeSimulator(int index_)
 {
-    //保存当前模拟器状态,以待恢复
-    currentSimulator->saveStatus();
-    //恢复新模拟器状态
-    currentSimulatorIndex=index_;
-    currentSimulator=simContainer[index_].sim.get();
-    currentSimulator->restore();
     //相应的控制面板变更
     dataInputPane->setCurrentIndex(index_);
     dataInputPane->resize(dataInputPane->currentWidget()->size());
@@ -255,7 +251,7 @@ void Widget::keyReleaseEvent(QKeyEvent *event)
 
 void Widget::mousePressEvent(QMouseEvent *event)
 {
-    if(simContainer[currentSimulatorIndex].stat==Unused){
+    if(simMappingContainer[currentSimMapping].stat==Unused){
         ui->textBrowser->append(tr("请先模拟,产生绘图数据"));
         return ;
     }

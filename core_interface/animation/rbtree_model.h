@@ -13,9 +13,9 @@ public:
     virtual void nextNFrame(int i) override;
     virtual void previousFrame(int i) override;
     virtual void currentSnapshot() const override;
-    virtual void changeElementSize() override;
+    virtual void changeElementSize(int factor) override;
 
-public:
+private:
     struct Elements
     {
         int diameter {40};   //节点直径
@@ -23,6 +23,7 @@ public:
         int nodeLineHeight {3 * diameter / 2};     //垂直距离
         int fontSize {radius};      //字体大小
     };
+
 private:
     Elements ele{};
 };

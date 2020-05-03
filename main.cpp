@@ -1,8 +1,5 @@
 #include "widget.h"
-#include"demosim.h"
-#include"rbtreesimulation.h"
-#include"quicksortsim.h"
-#include<memory>
+#include"register_type.h"
 #include<QTranslator>
 #include<QtDebug>
 
@@ -14,12 +11,30 @@ int main(int argc, char *argv[])
     QTranslator tr;
     if(tr.load(QLocale(),QLatin1String("fuck"),QLatin1String("_")))
         a.installTranslator(&tr);
+    Util::obj.registerCreateFunction();
+    Util::obj.createAll();
+//    //or
+//    Util::obj.createObj<Util::objFd<Rbtree>>();
+//    Util::obj.createObj<DemoSim>();
+//    Util::obj.createObj<2>();
+
+//    //those errors happened in compile-time
+//    Util::obj.createObj<3>();
+//    Util::obj.createObj<4>();
     Widget w;
-    w.addSimulator({
-                       {std::make_shared<RBtreeSimulation>()},
-                       {std::make_shared<DemoSim>()},
-                       {std::make_shared<QuickSortSimulation>()}
-                   });
+    w.addMapping(
+                {
+                     {
+                         {Util::objFd<Rbtree>},QStringLiteral("红黑树")
+                     },
+                     {
+                         {Util::objFd<DemoSim>},QStringLiteral("例子")
+                     },
+                     {
+                         {Util::objFd<QuickSortSimulation>},QStringLiteral("快速排序")
+                     }
+                }
+    );
     w.show();
     return a.exec();
 }

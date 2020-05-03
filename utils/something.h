@@ -12,6 +12,9 @@ namespace Util {
 
     template<typename ...T>
     void logExcept(const T & ...){};
+
+    inline const int width=800;
+    inline const int height=600;
 }
 
 #endif // MYEXCEPTION_H

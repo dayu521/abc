@@ -4,7 +4,7 @@
 #include<memory>
 #include"simulator.h"
 
-class Csimulator :public Simulator
+class Csimulator : public Simulator
 {  
     // Simulator interface
 public:
@@ -14,6 +14,7 @@ public:
     virtual void clearModelData() override;
     virtual void prepareReplay() override;
     virtual bool cancel() override;
+    virtual void setInputData(const std::vector<int> &) override;
 };
 
 #endif // CSIMULATOR_H

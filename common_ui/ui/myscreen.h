@@ -3,11 +3,18 @@
 #include<QWidget>
 #include<QTimer>
 #include<memory>
+#include"register_type.h"
 
 class Simulator;
 namespace {
     constexpr unsigned short MAXCOUNTS=8;
 }
+
+struct SimMapping :Util::ObjFD
+{
+    int pixFd{0};
+};
+
 class FlutteringWings : public QWidget
 {
     Q_OBJECT
@@ -18,7 +25,7 @@ public:
     using __width=int;
     using __height=int;
 
-    void changeCanvasSize(__width w_,__height h_);
+    void changeCanvasSize(__width w_,__height h_,bool isForce_=false);
 
     void makeElementsBig(int factor);
 
@@ -28,7 +35,7 @@ public:
     virtual std::tuple<__width,__height> calculationMinPixSize()=0;
 
     //播放动画
-    virtual void playAnimation();
+    virtual bool playAnimation();
 
     //停止动画
     virtual void stopAnimation();
@@ -37,28 +44,16 @@ public:
     void setInterval(int millisecond_);
 
     //切换模拟器
-    void switchS( int witch_);
+    void switchS( int which_);
 
-    //当前模拟器
-    auto getS()const
-    {
-        return sim;
-    }
     //保存状态
-    void saveStatus(int witch_);
+    void saveStatus(int which_);
 
     //恢复
-    void restore(int witch_);
-
-    using SimCreator=std::function<std::shared_ptr<Simulator>()>;
-
-    template<typename T>
-    std::enable_if_t<std::is_base_of_v<Simulator,T>,int> registerSim();
-
-    void creatorObject(int type_=-1);
+    void restore(int which_);
 
 signals:
-    void haveNoData();
+    void hasNoModelData();
 public slots :
     // QWidget interface
 protected:
@@ -71,26 +66,10 @@ private:
     int currentSimIndex{0};
     std::shared_ptr<Simulator> sim{};
 
-    //key=type,value=isAlreadyCreated,createFn
-    QHash<int,std::pair<bool,SimCreator>> objRegistersContainer{};
-
-    //simulator,pixId
-    QVector<std::pair<std::shared_ptr<Simulator>,int>> vecSim{};
+    SimMapping vecSim[Util::numberOfobjFd]{};
 
     QTimer * animationTimer{};
 };
 
-template<typename T>
-std::enable_if_t<std::is_base_of_v<Simulator,T>, int> FlutteringWings::registerSim()
-{
-    static int i=0;
-    int key=-1;
-    if(i==0){
-        key=vecSim.size();
-        objRegistersContainer.insert(key,std::make_pair(false,[](){std::make_shared<T>();}));
-        i++;
-    }
-    return key;
-}
 
 #endif // MYSCREEN_H

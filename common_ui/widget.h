@@ -10,12 +10,6 @@
 #include<QPointer>
 #include"csimulator.h"
 
-class fuckas:public Csimulator<int ,fuckas>
-{
-//    enum Myaction{};
-};
-fuckas a;
-
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
 QT_END_NAMESPACE
@@ -27,13 +21,12 @@ class QStackedWidget;
 
 enum Status{HasData,Unused};
 
-//在c++14以上,此类是聚合类型
-struct Fufu
+struct WidgetMappingInfo : Util::ObjFD
 {
-    std::shared_ptr<Simulator> sim;     //实际模拟器.这里主要是为了强制使用new 分配内存
-    int id=0;       //在被容器插入时,由插入时顺序决定
-    int frameStatusIndex=0;  //帧状态索引
-    Status stat=Unused;        //模拟器状态
+    QString showName{};     //控件显示的名字
+    int menuListIndex{0};       //显示的菜单列表索引
+    int dataInputPaneIndex{0};       //在被容器插入时,由插入时顺序决定
+//        Status stat=Unused;        //模拟器状态
 };
 
 class Widget : public QWidget
@@ -42,7 +35,7 @@ class Widget : public QWidget
 
 public:
     Widget(QWidget *parent = nullptr);
-    void addSimulator(std::initializer_list<Fufu> list_);
+    void addMapping(std::initializer_list<WidgetMappingInfo> list_);
     ~Widget();
 private:
     void loadCnf();
@@ -60,12 +53,12 @@ private:
     QPointer<SettingPane> globalSetting;
     QPointer<QStackedWidget> dataInputPane;     //容纳各个simulator各自的输入和控制面板
 
-    int currentSimulatorIndex=0;
-    Simulator * currentSimulator;
+    int currentSimMapping=0;
+    std::shared_ptr<Simulator> currentSimulator;
     int currentActionIndex=0;
     int currentActionNumber=0;
 
-    QVector<Fufu> simContainer;
+    QHash<int,WidgetMappingInfo> simMappingContainer;
     QPointer<QTimer> timeLine;
     QPointer<QTimer> throttleTimer;     //节流计时器
     bool isctl;
@@ -88,4 +81,5 @@ private slots:
 signals:
     void changeElementsSize(int);
 };
+
 #endif // WIDGET_H

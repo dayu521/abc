@@ -6,7 +6,3 @@ Rbtree::Rbtree():Simulator(std::make_shared<FreezePainter>(),std::make_shared<Fa
 
 }
 
-bool Rbtree::isOver() const
-{
-    this->animation->;
-}

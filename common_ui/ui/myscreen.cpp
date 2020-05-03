@@ -5,21 +5,14 @@
 #include"simulator.h"
 #include"something.h"
 #include"rbtreesimulation.h"
-//#include<loki/Factory.h>
 
 FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
     animationTimer(new QTimer)
 {
-
     initMesg();
     pixContainer.append(std::make_shared<QPixmap>(this->width(),this->height()));
-    pixContainer.append(std::make_shared<QPixmap>(600,800));
+    pixContainer.append(std::make_shared<QPixmap>(Util::width,Util::height));
     pix=pixContainer[0].get();
-
-    registerSim<RBtreeSimulation>();
-    for(auto iterator:objRegistersContainer.keys()){
-        creatorObject(iterator);
-    }
 
     animationTimer->setInterval(500);
     connect(animationTimer,&QTimer::timeout,[this](){
@@ -27,7 +20,7 @@ FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
         update();
     });
 
-    connect(this,&FlutteringWings::haveNoData,[this](){
+    connect(this,&FlutteringWings::hasNoModelData,[this](){
         sim->produceModelData();
     });
 }
@@ -39,7 +32,7 @@ FlutteringWings::~FlutteringWings()
 
 //----<---current--->----
 //    left        right
-void FlutteringWings::changeCanvasSize(__width w_, __height h_)
+void FlutteringWings::changeCanvasSize(__width w_, __height h_, bool isForce_)
 {
     auto maxW_=w_;
     auto maxH_=h_;
@@ -74,10 +67,14 @@ void FlutteringWings::changeCanvasSize(__width w_, __height h_)
             Util::logExcept("pix数量超过预定义,");
             return ;
         }
-        if(maxH_==0)
+        if(!isForce_){
+            maxW_=pix->size().width()*2;
+            maxH_=pix->size().height()*2;
+        }else if(maxH_==0)//不会全为0,因为被第一个while循环过滤掉了
             maxH_=maxW_;
-        if(maxW_==0)
+        else if(maxW_==0)
             maxW_=maxH_;
+
         pixContainer.append(std::make_shared<QPixmap>(maxW_,maxH_));
     }
     currentPixIndex=cur_;
@@ -87,7 +84,7 @@ void FlutteringWings::changeCanvasSize(__width w_, __height h_)
 
 void FlutteringWings::makeElementsBig(int factor)
 {
-    sim->getFP()->changeElementSize();
+    sim->getFP()->changeElementSize(factor);
     if(!animationTimer->isActive()){
         sim->getFP()->currentSnapshot();
         update();
@@ -105,14 +102,15 @@ void FlutteringWings::initMesg(const QString & s)
     p.drawText(50,100,"多使用鼠标右键上下文菜单");
 }
 
-void FlutteringWings::playAnimation()
+bool FlutteringWings::playAnimation()
 {
-    if(sim->currentStatus()==Simulator::Status::Empty){
-        emit haveNoData();
-        return ;
+    if(sim->currentStatus()!=Simulator::Status::HasModelData){
+        emit hasNoModelData();
+        return false;
     }
     if(!animationTimer->isActive())
         animationTimer->start();
+    return true;
 }
 
 void FlutteringWings::stopAnimation()
@@ -126,41 +124,29 @@ void FlutteringWings::setInterval(int millisecond_)
     animationTimer->setInterval(millisecond_);
 }
 
-void FlutteringWings::switchS(int witch_)
+void FlutteringWings::switchS(int which_)
 {
-    if(witch_>vecSim.size()||witch_<0)
+    if(which_>Util::numberOfobjFd||which_<0)
         throw std::range_error("No such Simulator!");
-    else if(currentSimIndex==witch_)
+    else if(currentSimIndex==which_)
         ;
     else{
         saveStatus(currentSimIndex);
-        currentSimIndex=witch_;
-        sim=vecSim[currentSimIndex].first;
-        pix=pixContainer[vecSim[currentSimIndex].second].get();
+        currentSimIndex=which_;
+        sim=Util::obj.GetObj(currentSimIndex);
+        pix=pixContainer[vecSim[currentSimIndex].pixFd].get();
         restore(currentSimIndex);
     }
 }
 
-void FlutteringWings::saveStatus(int witch_)
+void FlutteringWings::saveStatus(int which_)
 {
-    vecSim[witch_].second=currentPixIndex;
+    vecSim[which_].pixFd=currentPixIndex;
 }
 
-void FlutteringWings::restore(int witch_)
+void FlutteringWings::restore(int which_)
 {
-    currentPixIndex=vecSim[witch_].second;
-}
-
-void FlutteringWings::creatorObject(int type_)
-{
-    if(!objRegistersContainer.contains(type_))
-        throw std::runtime_error("Can not create Obj,you need to register this kind of type first");
-    else if(objRegistersContainer[type_].first)
-        ;
-    else{
-        vecSim.append(std::make_pair((objRegistersContainer[type_].second)(),0));
-        objRegistersContainer[type_].first=true;
-    }
+    currentPixIndex=vecSim[which_].pixFd;
 }
 
 void FlutteringWings::paintEvent(QPaintEvent *event)

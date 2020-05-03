@@ -1,6 +1,7 @@
 #ifndef ABSTRACTDATASOURCE_H
 #define ABSTRACTDATASOURCE_H
 #include<vector>
+#include<atomic>
 
 enum struct Status:unsigned int{
     Uncertain,
@@ -8,7 +9,14 @@ enum struct Status:unsigned int{
     Running,
     GodJob,
     Canceled,
-    Error
+//    Error
+};
+
+struct Instruction
+{
+    bool isPartOfOther{false};
+    int method{-1};
+    int data[6]{};
 };
 
 class FarAway
@@ -20,20 +28,19 @@ public:
 
     virtual ~FarAway();
 
-    virtual void init(const std::vector<int>&)=0;
-
-    virtual bool commitTask()=0;
-
     virtual void doWork()=0;
 
     //method+data
-    virtual void Input(const std::vector<int>&)=0;
+    virtual void initInput(const std::vector<int>&)=0;
 
-    virtual std::vector<int> & Output()=0;
+    virtual std::vector<Instruction> & getOutput()=0;
 
-    virtual Status status()const=0;
+    virtual Status status()const
+    {
+        return st;
+    }
 
-    bool cancel()
+    virtual bool cancel()
     {
         bool old=wantCancel;
         wantCancel=!wantCancel;
@@ -42,7 +49,7 @@ public:
 
 protected:
 
-    bool wantCancel{false};
+    std::atomic<bool> wantCancel{false};
 
     Status st{Status::Uncertain};
 

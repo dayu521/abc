@@ -1,11 +1,18 @@
 #ifndef LOKI_WRAP_H
 #define LOKI_WRAP_H
 
+#ifdef LOKI_IS_NOT_INSTALL
+#include"loki/Typelist.h"
+#else
 #include<loki/Typelist.h>
-#include<loki/NullType.h>
-
+#endif
 namespace Util {
 
+    /********************
+     * Effective Modern C++
+     * Reading Chapter 3 "Typelist" first,
+     * if you want to know about the details of some templates
+     * ***************/
     template <typename ...T>
     struct MakeTypelist{
         typedef Loki::NullType Result;
