@@ -1,20 +1,30 @@
 #ifndef RBTREE_H
 #define RBTREE_H
 #include"simulator.h"
+#include"datasource/far_away.h"
+#include"freeboy.h"
 
-class Rbtree : public Simulator
+#include<QObject>
+#include<QThread>
+
+class Rbtree : public QObject ,public Simulator
 {
+    Q_OBJECT
 public:
     explicit Rbtree();
     virtual ~Rbtree();
     // Simulator interface
 public:
-    virtual void setInputData(int *data, int size) override;
+    virtual void setInputData(const std::vector<int> &) override;
     virtual void produceModelData() override;
     virtual void clearModelData() override;
     virtual void prepareReplay() override;
-    virtual bool cancel() override;
-
+signals:
+    void start();
+    void completed();
+private:
+    FreeBoy * fb{nullptr};
+    QThread * thread{nullptr};
 };
 
 #endif // RBTREE_H

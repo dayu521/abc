@@ -14,6 +14,11 @@ public:
     virtual void previousFrame(int i) override;
     virtual void currentSnapshot() const override;
     virtual void changeElementSize(int factor) override;
+    virtual bool acceptableScale(int factor) override;
+    virtual std::tuple<Util::__width_int,Util::__height_int> calculationMinPixSize() override;
+    virtual bool isBlow() override;
+    virtual void clearAllDatas() override;
+    virtual void initModelData() override;
 
 private:
     struct Elements
@@ -26,6 +31,7 @@ private:
 
 private:
     Elements ele{};
+
 };
 
 #endif // RBTREEMODEL_H

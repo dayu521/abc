@@ -9,7 +9,8 @@ namespace Util {
 
     //注册模拟器Simulator的类型,类型标识是int,按照顺序从0开始
     //例如,以下例子中,0表示Rbtree,1表示DemoSim,2表示QuickSortSimulation...
-    inline ObjManager<Simulator,Rbtree,DemoSim,QuickSortSimulation> obj;
+    //inline ObjManager<Simulator,Rbtree,DemoSim,QuickSortSimulation> obj;
+    inline ObjManager<Simulator,Rbtree> obj;
 
     using AlreadyRegisterTypes=decltype (obj);
     template<typename T>
@@ -19,7 +20,7 @@ namespace Util {
 
     struct ObjFD
     {
-        const int fd{0};
+        int fd{0};     //不得已,不能是const
     };
 
 }

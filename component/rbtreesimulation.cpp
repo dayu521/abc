@@ -1,3 +1,4 @@
+#ifdef fuck
 #include "rbtreesimulation.h"
 #include<initializer_list>
 #include<QPainter>
@@ -787,3 +788,4 @@ void RBtreeSimulation::recolorNodeItem(Util::TupleWrapArray<FakeNode *, 3> tuple
     paintColor(b,pp);
     paintColor(c,pp);
 }
+#endif

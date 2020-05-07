@@ -9,7 +9,7 @@
 namespace Util {
 
     /********************
-     * Effective Modern C++
+     * Modern C++ Design
      * Reading Chapter 3 "Typelist" first,
      * if you want to know about the details of some templates
      * ***************/

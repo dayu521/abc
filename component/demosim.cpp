@@ -1,47 +1,16 @@
+#ifdef fuck
 #include "demosim.h"
 #include<QPixmap>
 #include<QWidget>
 #include<QPainter>
 
-DemoSim::DemoSim(QString name_):name(name_)
+DemoSim::DemoSim(QString name_)
 {
-
-    panel=new QWidget;
-    panel->setAutoFillBackground(true);
-    auto pp=panel->palette();
-    pp.setColor(QPalette::Background,Qt::red);
-    panel->resize(800,500);
-    panel->setPalette(pp);
     k=10;
 }
 
 DemoSim::~DemoSim()
 {
-}
-
-QWidget *DemoSim::getUi()
-{
-    return panel;
-}
-
-QString DemoSim::getName() const
-{
-    return name;
-}
-
-void DemoSim::produceActionData()
-{
-
-}
-
-void DemoSim::clearActionData()
-{
-
-}
-
-void DemoSim::setPixmap(std::shared_ptr<QPixmap> p_)
-{
-    pix=p_;
 }
 
 void DemoSim::currentSnapshot() const
@@ -78,23 +47,4 @@ void DemoSim::nextAction()
     int x=n_-y*10;
     p_.drawRect(x*_diameter,y*_diameter,_diameter,_diameter);
 }
-
-int DemoSim::actionNumber() const
-{
-    return 100;
-}
-
-void DemoSim::prepareReplay()
-{
-
-}
-
-void DemoSim::makeElementsBig(int factor)
-{
-    _diameter+=factor;
-}
-
-void DemoSim::setPixmapsize()
-{
-
-}
+#endif

@@ -4,11 +4,10 @@
 #include<initializer_list>
 #include<memory>
 #include <QWidget>
-#include"myscreen.h"
+#include"flutteringwings.h"
 #include"setting.h"
 #include"common.h"
 #include<QPointer>
-#include"csimulator.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -19,32 +18,34 @@ class QMenu;
 class Simulator;
 class QStackedWidget;
 
-enum Status{HasData,Unused};
-
-struct WidgetMappingInfo : Util::ObjFD
-{
-    QString showName{};     //控件显示的名字
-    int menuListIndex{0};       //显示的菜单列表索引
-    int dataInputPaneIndex{0};       //在被容器插入时,由插入时顺序决定
-//        Status stat=Unused;        //模拟器状态
-};
-
 class Widget : public QWidget
 {
     Q_OBJECT
 
 public:
     Widget(QWidget *parent = nullptr);
-    void addMapping(std::initializer_list<WidgetMappingInfo> list_);
+
     ~Widget();
+    enum Status{Used,Unused};
+    struct WidgetMappingInfo : Util::ObjFD
+    {
+        QString showName{};     //控件显示的名字
+        int menuListIndex{0};       //显示的菜单列表索引
+        int dataInputPaneIndex{0};       //在被容器插入时,由插入时顺序决定
+        Status stat{Unused};        //模拟器状态
+        bool isAnimationComplete{false};    //动画是否结束
+    };
+    void addMapping(std::initializer_list<WidgetMappingInfo> list_);
 private:
     void loadCnf();
     void initUI();
     void prepareNewSimulation();
     void initAction();
     void prepare();
-    void changeSimulator(int index_=0);
+    void changeSimulator(int objFd);
     void showMsg();
+    int getObjFdFromMenuList(int index_);
+    int getObjFdFromDataInputPane(int index_);
 
 private:
     Ui::Widget *ui;
@@ -53,16 +54,13 @@ private:
     QPointer<SettingPane> globalSetting;
     QPointer<QStackedWidget> dataInputPane;     //容纳各个simulator各自的输入和控制面板
 
-    int currentSimMapping=0;
     std::shared_ptr<Simulator> currentSimulator;
-    int currentActionIndex=0;
-    int currentActionNumber=0;
 
+    int currentobjFd=0;
     QHash<int,WidgetMappingInfo> simMappingContainer;
-    QPointer<QTimer> timeLine;
-    QPointer<QTimer> throttleTimer;     //节流计时器
+
     bool isctl;
-    int factor=5;
+    Util::__factor_int factor{Util::factor};
     Mode mode;
 
     // QWidget interface

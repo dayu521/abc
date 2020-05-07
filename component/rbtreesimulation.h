@@ -1,3 +1,4 @@
+#ifdef fuck
 #ifndef RBTREESIMULATION_H
 #define RBTREESIMULATION_H
 #include "simulator.h"
@@ -215,3 +216,4 @@ private:
 };
 
 #endif // RBTREESIMULATION_H
+#endif

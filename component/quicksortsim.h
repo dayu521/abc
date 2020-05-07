@@ -3,6 +3,7 @@
 #include"simulator.h"
 #include<QColor>
 
+#ifdef fuck
 //数据结构与算法分析c++描述第三版
 class QuickSortSimulation:public Simulator
 {
@@ -70,5 +71,5 @@ private:
     int median3(QVector<int> & vec_,int left_,int right);
 
 };
-
+#endif
 #endif // QUICKSORTSIM_H

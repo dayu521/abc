@@ -2,22 +2,33 @@
 #define ABSTRACTDATASOURCE_H
 #include<vector>
 #include<atomic>
+#include<functional>
+#include<unordered_map>
 
 enum struct Status:unsigned int{
     Uncertain,
     Ready,
     Running,
     GodJob,
-    Canceled,
 //    Error
 };
 
-struct Instruction
+template <int N>
+struct InstructionTP
 {
     bool isPartOfOther{false};
-    int method{-1};
-    int data[6]{};
+    int action{-1};
+    int data[N]{};
 };
+
+struct Input
+{
+    int method{-1};
+    int dataLength{0};
+    int * data{nullptr};
+};
+
+using Instruction=InstructionTP<6>;
 
 class FarAway
 {
@@ -30,29 +41,25 @@ public:
 
     virtual void doWork()=0;
 
-    //method+data
-    virtual void initInput(const std::vector<int>&)=0;
+    //method+datalength+data....
+    //  1      1     N
+    virtual bool setInput(const std::vector<Input>&)=0;
 
     virtual std::vector<Instruction> & getOutput()=0;
 
-    virtual Status status()const
+    virtual Status status()
     {
         return st;
     }
-
-    virtual bool cancel()
-    {
-        bool old=wantCancel;
-        wantCancel=!wantCancel;
-        return old;
-    }
+protected:
+    using Method=std::function<void ()>;
+    virtual void registerMethod(int methodKey_,Method m_);
 
 protected:
-
-    std::atomic<bool> wantCancel{false};
-
     Status st{Status::Uncertain};
-
+    std::vector<Input> input{};
+    std::vector<Instruction> oupt{};
+    std::unordered_map<int,Method> ms{};
 };
 
 #endif // ABSTRACTDATASOURCE_H

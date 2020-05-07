@@ -21,6 +21,14 @@
   - 编辑器为qt自带qtcreator,默认utf-8编码
   - 注意,utf-8编码
 
+### 库
+
+`loki`库来自`Modern C++ Design`,可以到[loki](http://loki-lib.sourceforge.net/)进行下载安装.
+
+由于Linux下几乎没有发行版打包,并且如果你不想自行安装,可以到.pro文件移除掉~~`CONFIG +=loki_is_installed`~~
+
+不过只使用了其中的`Typelist`,就单独加入了几个相关头文件.(虽然代码量很少,不该这样的,之后会考虑`git submodule`)
+
 ### 其他
 
 算法目前来自于`算法导论 第三版`与`数据结构与算法分析c++描述 第二版`

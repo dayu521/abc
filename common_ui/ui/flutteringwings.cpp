@@ -1,4 +1,4 @@
-#include "myscreen.h"
+#include "flutteringwings.h"
 #include<QPainter>
 #include<QPixmap>
 #include"animation/abstract_animation.h"
@@ -9,19 +9,40 @@
 FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
     animationTimer(new QTimer)
 {
-    initMesg();
+
     pixContainer.append(std::make_shared<QPixmap>(this->width(),this->height()));
     pixContainer.append(std::make_shared<QPixmap>(Util::width,Util::height));
     pix=pixContainer[0].get();
 
-    animationTimer->setInterval(500);
+    initMesgOnPix();
+    for(int i=0;i<Util::numberOfobjFd;i++)
+        mappingVec.push_back({{i},0});
+
+    animationTimer->setInterval(200);
     connect(animationTimer,&QTimer::timeout,[this](){
-        sim->getFP()->nextNFrame();
+        if(currentFp->isBlow()){
+            animationTimer->stop();
+            emit playCompleted();
+            return ;
+        }
+        currentFp->nextNFrame();
         update();
     });
 
     connect(this,&FlutteringWings::hasNoModelData,[this](){
         sim->produceModelData();
+    });
+
+    throttleTimer=new QTimer(this);
+    throttleTimer->setSingleShot(true);
+    connect(throttleTimer,&QTimer::timeout,[this](){
+        currentFp->changeElementSize(factor);    //必定成功
+        changeCanvasSize(wantedWidth,wantedHeight);     //必定成功
+        if(!animationTimer->isActive()){
+            currentFp->currentSnapshot();
+            update();
+        }
+        emit elementsSizeChanged(true);
     });
 }
 
@@ -30,9 +51,14 @@ FlutteringWings::~FlutteringWings()
 
 }
 
+void FlutteringWings::addMapping(std::initializer_list<SimMapping> s)
+{
+
+}
+
 //----<---current--->----
 //    left        right
-void FlutteringWings::changeCanvasSize(__width w_, __height h_, bool isForce_)
+void FlutteringWings::changeCanvasSize(Util::__width_int w_,Util::__height_int h_, bool isForce_)
 {
     auto maxW_=w_;
     auto maxH_=h_;
@@ -61,10 +87,10 @@ void FlutteringWings::changeCanvasSize(__width w_, __height h_, bool isForce_)
     }
     if(cur_>=pixContainer.size()){
         try {
-            if(pixContainer.size()>=MAXCOUNTS)
-                throw Util::TooMuchException();
-        }  catch (Util::TooMuchException &) {
-            Util::logExcept("pix数量超过预定义,");
+            if(pixContainer.size()>=Util::MAX_PIX_COUNTS)
+                throw std::range_error("Exceeding the maximum number");
+        }  catch (std::range_error & e) {
+            Util::logExcept(e.what(),Util::MAX_PIX_COUNTS);
             return ;
         }
         if(!isForce_){
@@ -82,16 +108,20 @@ void FlutteringWings::changeCanvasSize(__width w_, __height h_, bool isForce_)
     resize(pix->size());
 }
 
-void FlutteringWings::makeElementsBig(int factor)
+bool FlutteringWings::makeElementsBig(int factor)
 {
-    sim->getFP()->changeElementSize(factor);
-    if(!animationTimer->isActive()){
-        sim->getFP()->currentSnapshot();
-        update();
-    }
+    throttleTimer->stop();
+    if(!currentFp->acceptableScale(factor))
+        return false;
+    this->factor=factor;
+    std::tie(wantedWidth,wantedHeight)=currentFp->calculationMinPixSize();
+    if(wantedWidth>Util::MAX_WIDTH&&wantedHeight>Util::MAX_HEIGHT)
+        return false;
+    throttleTimer->start(200);      //清除重置之前未完成的计时器，开始新计时
+    return true;
 }
 
-void FlutteringWings::initMesg(const QString & s)
+void FlutteringWings::initMesgOnPix(const QString & s)
 {
     pix->fill(Qt::white);
     QPainter p(pix);
@@ -102,15 +132,16 @@ void FlutteringWings::initMesg(const QString & s)
     p.drawText(50,100,"多使用鼠标右键上下文菜单");
 }
 
-bool FlutteringWings::playAnimation()
+void FlutteringWings::playAnimation()
 {
-    if(sim->currentStatus()!=Simulator::Status::HasModelData){
-        emit hasNoModelData();
-        return false;
+    if(sim->currentStatus()!=Simulator::Status::CanPlay){
+        ;
     }
-    if(!animationTimer->isActive())
+    else if(!animationTimer->isActive()){
         animationTimer->start();
-    return true;
+        return ;
+    }
+    emit canNotPlay();
 }
 
 void FlutteringWings::stopAnimation()
@@ -119,34 +150,51 @@ void FlutteringWings::stopAnimation()
         animationTimer->stop();
 }
 
+void FlutteringWings::prepareReplayAnimation()
+{
+    if(sim->currentStatus()!=Simulator::HasModelData){
+        emit hasNoModelData();
+    }
+    currentFp->initModelData();
+}
+
 void FlutteringWings::setInterval(int millisecond_)
 {
     animationTimer->setInterval(millisecond_);
 }
 
-void FlutteringWings::switchS(int which_)
+void FlutteringWings::setSim(int which_)
 {
+    stopAnimation();
     if(which_>Util::numberOfobjFd||which_<0)
         throw std::range_error("No such Simulator!");
     else if(currentSimIndex==which_)
         ;
     else{
-        saveStatus(currentSimIndex);
-        currentSimIndex=which_;
-        sim=Util::obj.GetObj(currentSimIndex);
-        pix=pixContainer[vecSim[currentSimIndex].pixFd].get();
-        restore(currentSimIndex);
+        saveStatus(currentSimIndex);       
+        applyStatus(which_);
+        update();
     }
 }
 
 void FlutteringWings::saveStatus(int which_)
 {
-    vecSim[which_].pixFd=currentPixIndex;
+    mappingVec[which_].pixFd=currentPixIndex;
+    currentFp=nullptr;
 }
 
-void FlutteringWings::restore(int which_)
+void FlutteringWings::applyStatus(int which_)
 {
-    currentPixIndex=vecSim[which_].pixFd;
+    //模拟器下标
+    currentSimIndex=which_;
+    //新模拟器
+    sim=Util::obj.GetObj(mappingVec[which_].fd);
+    //模拟器pixmap的下标
+    currentPixIndex=mappingVec[which_].pixFd;
+    //模拟器对应pixmap
+    pix=pixContainer[mappingVec[which_].pixFd].get();
+    //模拟器的Fp
+    currentFp=sim->getFP().get();
 }
 
 void FlutteringWings::paintEvent(QPaintEvent *event)

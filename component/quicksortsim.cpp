@@ -1,3 +1,4 @@
+#ifdef fuck
 #include "quicksortsim.h"
 #include<QWidget>
 #include<QPainter>
@@ -129,3 +130,4 @@ int QuickSortSimulation::median3(QVector<int> &vec_, int left_, int right_)
     return vec_[left_+1];
 }
 
+#endif

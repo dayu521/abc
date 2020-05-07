@@ -26,13 +26,13 @@ int main(int argc, char *argv[])
                 {
                      {
                          {Util::objFd<Rbtree>},QStringLiteral("红黑树")
-                     },
+                     }/*,
                      {
                          {Util::objFd<DemoSim>},QStringLiteral("例子")
                      },
                      {
                          {Util::objFd<QuickSortSimulation>},QStringLiteral("快速排序")
-                     }
+                     }*/
                 }
     );
     w.show();

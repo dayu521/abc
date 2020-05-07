@@ -63,7 +63,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Noto Sans';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -78,21 +78,21 @@ p, li { white-space: pre-wrap; }
      <item>
       <widget class="QScrollArea" name="rightContainerWidgetWrap">
        <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOn</enum>
+        <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOn</enum>
+        <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="widgetResizable">
         <bool>false</bool>
        </property>
-       <widget class="MyScreen" name="rightContainerWidget">
+       <widget class="FlutteringWings" name="rightContainerWidget">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>710</width>
-          <height>407</height>
+          <width>600</width>
+          <height>400</height>
          </rect>
         </property>
        </widget>
@@ -170,9 +170,9 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MyScreen</class>
+   <class>FlutteringWings</class>
    <extends>QWidget</extends>
-   <header>myscreen.h</header>
+   <header>flutteringwings.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

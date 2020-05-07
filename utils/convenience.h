@@ -131,11 +131,6 @@ namespace Util {
             createObj<typename Loki::TL::TypeAt<Fck,typeFd>::Result>();
         }
 
-//        void registerType()
-//        {
-//             registerType<Fck>();
-//        }
-
         template<typename UU=Fck>
         std::enable_if_t<std::is_base_of_v<Base,typename UU::Head>> registerCreateFunction()
         {
@@ -148,6 +143,12 @@ private:
         template<typename UU>
         std::enable_if_t<std::is_same_v<Loki::NullType,UU>> registerCreateFunction()
         {
+        }
+
+        void createObj(int typeFd_)
+        {
+            vecSim.push_back(((objRegistersContainer[typeFd_]).second)());
+            objRegistersContainer[typeFd_].first=true;
         }
 
         //key=type,value=isAlreadyCreated,createFn
@@ -168,7 +169,7 @@ private:
         else if(objRegistersContainer[typeFd_].first)
             return vecSim[typeFd_];
         else{
-            createObj<typeFd_>();
+            createObj(typeFd_);
             return vecSim[typeFd_];
         }
     }

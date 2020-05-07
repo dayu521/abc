@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-CONFIG +=c++17 loki_is_installed
+CONFIG +=c++17
 QT +=widgets
 TARGET = abc
 INCLUDEPATH +=  common_ui/  \
@@ -11,7 +11,10 @@ INCLUDEPATH +=  common_ui/  \
                 core_interface  \
                 core_interface/datasource   \
                 component   \
-                utils       \
+                utils
+
+CONFIG += loki_is_installed
+#DEFINES += fuck
 
 !loki_is_installed{
     DEFINES +=LOKI_IS_NOT_INSTALL
@@ -38,18 +41,20 @@ msvc {
 
 # Input
 HEADERS += \
+           common_ui/ui/flutteringwings.h \
            component/demosim.h \
+           component/freeboy.h \
            component/hanoisim.h \
            component/mazesim.h \
            component/quicksortsim.h \
            component/rbtree_sim.h \
            component/rbtreesimulation.h \
-           common_ui/ui/myscreen.h \
            common_ui/ui/setting.h \
            core_interface/animation/abstract_animation.h \
            core_interface/animation/rbtree_model.h \
            core_interface/csimulator.h \
            core_interface/datasource/far_away.h \
+           core_interface/datasource/rbdata.h \
            core_interface/datasource/wrap_far_away.h \
            core_interface/simulator.h \
            common_ui/widget.h \
@@ -66,8 +71,11 @@ HEADERS += \
         3rdlib/loki/TypelistMacros.h \
 }
 FORMS += common_ui/ui/form.ui common_ui/widget.ui
+
 SOURCES += \
+           common_ui/ui/flutteringwings.cpp \
            component/demosim.cpp \
+           component/freeboy.cpp \
            component/hanoisim.cpp \
            component/mazesim.cpp \
            component/quicksortsim.cpp \
@@ -77,13 +85,14 @@ SOURCES += \
            core_interface/animation/rbtree_model.cpp \
            core_interface/csimulator.cpp \
            core_interface/datasource/far_away.cpp \
+           core_interface/datasource/rbdata.cpp \
            core_interface/datasource/wrap_far_away.cpp \
            core_interface/simulator.cpp \
            main.cpp \
-           common_ui/ui/myscreen.cpp \
            common_ui/ui/setting.cpp \
            common_ui/widget.cpp \
            utils/something.cpp
+
 TRANSLATIONS +=abc_en_US.ts \
             abc_zh_CN.ts \
 

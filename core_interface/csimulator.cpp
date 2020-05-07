@@ -1,3 +1,4 @@
+#ifdef fuck
 #include "csimulator.h"
 //#include<loki/Factory.h>
 
@@ -6,3 +7,9 @@ Csimulator::Csimulator(std::shared_ptr<FreezePainter> fp_, std::shared_ptr<FarAw
 {
 
 }
+
+Csimulator::~Csimulator()
+{
+
+}
+#endif
