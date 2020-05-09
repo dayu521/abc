@@ -1,15 +1,14 @@
 #ifndef ABSTRACTANIMATION_H
 #define ABSTRACTANIMATION_H
-
 #include"something.h"
-#include"datasource/far_away.h"
 #include<vector>
+using Instruction=Util::InstructionTP<6>;
 
 class FreezePainter
 {
 public:
-    explicit FreezePainter();
-    virtual ~FreezePainter();
+    explicit FreezePainter(){}
+    virtual ~FreezePainter(){}
 
     //动画的下N帧
     virtual void nextNFrame(int i=0)=0;
@@ -35,7 +34,7 @@ public:
     virtual bool acceptableScale(int factor)=0;
 
     //返回当前可容纳所有内容的最小大小.例如,显示控件大小必定至少等于此大小(width,height)
-    virtual std::tuple<Util::__width_int,Util::__height_int> calculationMinPixSize();
+    virtual std::tuple<Util::__width_int,Util::__height_int> calculationMinPixSize()=0;
 
     void setInput(std::vector<Instruction> v)
     {

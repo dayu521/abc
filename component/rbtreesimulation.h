@@ -1,14 +1,17 @@
-#ifdef fuck
+
 #ifndef RBTREESIMULATION_H
 #define RBTREESIMULATION_H
-#include "simulator.h"
-#include "convenience.h"
+
 #include<QHash>
 #include<QQueue>
+#include<QObject>
+#include<memory>
+#include"convenience.h"
+
 class QPainter;
 
 //红黑树算法取自算法导论第三版
-class RBtreeSimulation :public Simulator
+class RBtreeSimulation
 {
 public:
     explicit RBtreeSimulation();
@@ -16,20 +19,20 @@ public:
 
     // Simulator interface
 public:
-    virtual void produceActionData() override;
-    virtual void clearActionData() override;
-    virtual QWidget *getUi() override;
-    virtual QString getName() const override;
-    virtual void setPixmap(std::shared_ptr<QPixmap>) override;
-    virtual void currentSnapshot() const override;
-    virtual int actionNumber() const override;
-    virtual void nextAction() override;
-    virtual QSize calculationMinPixSize() override;
-    virtual void makeElementsBig(int factor) override;
-    virtual void prepareReplay() override;
-    virtual void nextFrame() override;
-    virtual void animationStart() override;
-    virtual bool isOver()const override;
+    virtual void produceActionData() ;
+    virtual void clearActionData() ;
+    virtual QWidget *getUi() ;
+    virtual QString getName() const ;
+    virtual void setPixmap(std::shared_ptr<QPixmap>) ;
+    virtual void currentSnapshot() const ;
+    virtual int actionNumber() const ;
+    virtual void nextAction() ;
+    virtual QSize calculationMinPixSize() ;
+    virtual void makeElementsBig(int factor) ;
+    virtual void prepareReplay() ;
+    virtual void nextFrame() ;
+    virtual void animationStart() ;
+    virtual bool isOver()const ;
 private:
     void searchANM();
 private:
@@ -54,9 +57,6 @@ private:
     double xLine=0;
     double yLine=0;
 
-    struct Status;
-    Status * current;
-    Status * next;
     //树节点数量
     int _nodeSize=0;
 
@@ -89,9 +89,6 @@ private:
               color(_Color) {}
     };
 
-    struct Status{
-
-    };
 
     struct FakeNode {
         int _value;
@@ -216,4 +213,4 @@ private:
 };
 
 #endif // RBTREESIMULATION_H
-#endif
+

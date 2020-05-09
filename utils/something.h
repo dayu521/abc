@@ -3,6 +3,7 @@
 
 #include<stdexcept>
 #include<array>
+#include<iostream>
 
 namespace Util {
 
@@ -22,6 +23,29 @@ namespace Util {
     constexpr unsigned short MAX_PIX_COUNTS=4;
 
     constexpr __factor_int factor=5;
+
+    template <int N>
+    struct InstructionTP
+    {
+        int action{-1};
+        int data[N]{};
+        bool isPartOfOther{false};
+    };
+
+    struct Input
+    {
+        int method{-1};
+        int dataLength{0};
+        int * data{nullptr};
+        Input(int method_,int datal_=0):method(method_),dataLength(datal_),data(new int[datal_]){}
+    };
+
+    template <typename InputIterator>
+    inline void clearAllInput(InputIterator begin_,InputIterator end_)
+    {
+        for(;begin_!=end_;begin_++)
+            delete [] (*begin_).data;
+    }
 
     struct Psize
     {

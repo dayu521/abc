@@ -82,7 +82,6 @@ SOURCES += \
            component/rbtree_sim.cpp \
            component/rbtreesimulation.cpp \
            core_interface/alarm.cpp \
-           core_interface/animation/abstract_animation.cpp \
            core_interface/animation/rbtree_model.cpp \
            core_interface/datasource/far_away.cpp \
            core_interface/datasource/rbdata.cpp \

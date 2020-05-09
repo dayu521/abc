@@ -4,6 +4,7 @@
 #include<atomic>
 #include<functional>
 #include<unordered_map>
+#include"something.h"
 
 enum struct FAStatus:unsigned int{
     Uncertain,
@@ -13,23 +14,8 @@ enum struct FAStatus:unsigned int{
 //    Error
 };
 
-template <int N>
-struct InstructionTP
-{
-    bool isPartOfOther{false};
-    int action{-1};
-    int data[N]{};
-};
-
-struct Input
-{
-    int method{-1};
-    int dataLength{0};
-    int * data{nullptr};
-    ~Input(){ delete  data;}
-};
-
-using Instruction=InstructionTP<6>;
+using Instruction=Util::InstructionTP<6>;
+using Input=Util::Input;
 
 class FarAway
 {
@@ -59,7 +45,8 @@ protected:
 protected:
     FAStatus st{FAStatus::Uncertain};
     std::vector<Input> input{};
-    std::vector<Instruction> oupt{};
+    int index{0};
+    std::vector<Instruction> output{};
     std::unordered_map<int,Method> ms{};
 };
 

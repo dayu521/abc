@@ -27,4 +27,5 @@ void Simulator::produceModelData()
 void Simulator::clearModelData()
 {
     animation->clearAllModelDatas();
+    st=Status::Empty;
 }

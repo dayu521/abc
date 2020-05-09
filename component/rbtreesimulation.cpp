@@ -4,7 +4,7 @@
 #include<QPainter>
 #include<QWidget>
 
-RBtreeSimulation::RBtreeSimulation():Simulator()
+RBtreeSimulation::RBtreeSimulation()
 {
     initialTree();
 }
@@ -788,4 +788,5 @@ void RBtreeSimulation::recolorNodeItem(Util::TupleWrapArray<FakeNode *, 3> tuple
     paintColor(b,pp);
     paintColor(c,pp);
 }
+
 #endif

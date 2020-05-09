@@ -15,7 +15,9 @@ Rbtree::~Rbtree()
 void Rbtree::setInputData(const std::vector<int> &v)
 {
 //    dataSource->setInput(v);
-    dataSource->setInput({{1}});
+    st=Simulator::Status::UnCertain;
+    Input a={RbData::Insert,1000};
+    dataSource->setInput({a});
 }
 
 void Rbtree::clearModelData()

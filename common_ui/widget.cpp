@@ -85,7 +85,7 @@ void Widget::initAction()
     auto startAct=menu->addAction(tr("生成模拟数据"));
     connect(startAct,&QAction::triggered,[this](){      
         ui->textBrowser->append(tr("正在生成模拟数据"));
-//        currentSimulator->setInputData({});
+        currentSimulator->setInputData({});
         alarm->startD();        //发送信号,生成原始数据
     });
 
@@ -191,9 +191,10 @@ void Widget::prepare()
                 ui->rightContainerWidget->playAnimation():
                 ui->rightContainerWidget->stopAnimation();
             ui->textBrowser->append(ui->rightContainerWidget->isRunning()?tr("已开始"):tr("已暂停"));
-        }else{
+        }else if((currentSimulator->currentStatus()==Simulator::Status::UnCertain)){
+            ui->textBrowser->append(tr("可能正在进行,请稍后"));
+        }else
             ui->textBrowser->append(tr("无数据,请先生成"));
-        }
 
     });
 

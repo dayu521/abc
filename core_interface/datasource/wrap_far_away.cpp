@@ -15,7 +15,7 @@ void WrapFarAway::doWork()
         stMutex.unlock();
         try {
             for(const auto & f :input)
-                ms.find(f.method)->second();
+                ms.at(f.method)();
         }  catch (const std::out_of_range &) {
             throw  std::runtime_error("can not execute this method.no such method");
         }
@@ -29,7 +29,9 @@ void WrapFarAway::doWork()
 bool WrapFarAway::setInput(std::vector<Input> p)
 {
     if(dataMutex.tryLock()){
+        Util::clearAllInput(input.begin(),input.end());
         input=std::move(p);
+        index=0;
         dataMutex.unlock();
         stMutex.lock();
         st=FAStatus::Ready;
@@ -42,6 +44,6 @@ bool WrapFarAway::setInput(std::vector<Input> p)
 std::vector<Instruction> WrapFarAway::getOutput()
 {
     QMutexLocker L(&dataMutex);
-    return oupt;
+    return output;
 }
 
