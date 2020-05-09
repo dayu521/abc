@@ -50,9 +50,9 @@ HEADERS += \
            component/rbtree_sim.h \
            component/rbtreesimulation.h \
            common_ui/ui/setting.h \
+           core_interface/alarm.h \
            core_interface/animation/abstract_animation.h \
            core_interface/animation/rbtree_model.h \
-           core_interface/csimulator.h \
            core_interface/datasource/far_away.h \
            core_interface/datasource/rbdata.h \
            core_interface/datasource/wrap_far_away.h \
@@ -81,9 +81,9 @@ SOURCES += \
            component/quicksortsim.cpp \
            component/rbtree_sim.cpp \
            component/rbtreesimulation.cpp \
+           core_interface/alarm.cpp \
            core_interface/animation/abstract_animation.cpp \
            core_interface/animation/rbtree_model.cpp \
-           core_interface/csimulator.cpp \
            core_interface/datasource/far_away.cpp \
            core_interface/datasource/rbdata.cpp \
            core_interface/datasource/wrap_far_away.cpp \

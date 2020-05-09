@@ -7,6 +7,7 @@
 #include"flutteringwings.h"
 #include"setting.h"
 #include"common.h"
+#include"alarm.h"
 #include<QPointer>
 
 QT_BEGIN_NAMESPACE
@@ -26,13 +27,11 @@ public:
     Widget(QWidget *parent = nullptr);
 
     ~Widget();
-    enum Status{Used,Unused};
     struct WidgetMappingInfo : Util::ObjFD
     {
         QString showName{};     //控件显示的名字
         int menuListIndex{0};       //显示的菜单列表索引
         int dataInputPaneIndex{0};       //在被容器插入时,由插入时顺序决定
-        Status stat{Unused};        //模拟器状态
         bool isAnimationComplete{false};    //动画是否结束
     };
     void addMapping(std::initializer_list<WidgetMappingInfo> list_);
@@ -59,6 +58,8 @@ private:
     int currentobjFd=0;
     QHash<int,WidgetMappingInfo> simMappingContainer;
 
+    Alarm * alarm{};
+
     bool isctl;
     Util::__factor_int factor{Util::factor};
     Mode mode;
@@ -78,6 +79,7 @@ private slots:
 
 signals:
     void changeElementsSize(int);
+    void switchClickd();
 };
 
 #endif // WIDGET_H

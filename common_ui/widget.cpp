@@ -14,7 +14,7 @@
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::Widget)
+    , ui(new Ui::Widget),alarm(new Alarm)
 {
     ui->setupUi(this);
 //    setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -83,17 +83,10 @@ void Widget::initAction()
 
     // =fuc
     auto startAct=menu->addAction(tr("生成模拟数据"));
-    connect(startAct,&QAction::triggered,[this](){
-        auto sim=Util::obj.GetObj(currentobjFd);
-        sim->clearModelData();
-        ui->textBrowser->append(tr("清除已模拟的数据"));
-        sim->produceModelData();
-        ui->textBrowser->append(tr("[%1]模拟数据生成完成").arg(simMappingContainer[currentobjFd].showName));
-        //给模拟器更新画布pixmap
-        auto [w,h]=sim->getFP()->calculationMinPixSize();
-        ui->rightContainerWidget->changeCanvasSize(w,h);
-        simMappingContainer[currentobjFd].stat=Used;
-        simMappingContainer[currentobjFd].isAnimationComplete=false;
+    connect(startAct,&QAction::triggered,[this](){      
+        ui->textBrowser->append(tr("正在生成模拟数据"));
+//        currentSimulator->setInputData({});
+        alarm->startD();        //发送信号,生成原始数据
     });
 
     auto restart_Act=menu->addAction(tr("重新放映"));
@@ -173,10 +166,35 @@ void Widget::prepare()
     });
 
     connect(this,&Widget::changeElementsSize,[this](int x_){
-        if(simMappingContainer[currentobjFd].stat==Status::Unused)
+        if(currentSimulator->currentStatus()!=Simulator::Status::HasModelData)
             ui->textBrowser->append(tr("无法进行当前大小的缩放"));
         else if(ui->rightContainerWidget->makeElementsBig(x_))
             ui->textBrowser->append(tr("能够进行当前大小的缩放"));
+    });
+
+    //原始数据生成完成信号
+    connect(alarm,&Alarm::completed,[this](){
+        ui->textBrowser->append(tr("[%1]原始数据生成完成").arg(simMappingContainer[currentobjFd].showName));
+        currentSimulator->clearModelData();
+        currentSimulator->produceModelData();
+        ui->textBrowser->append(tr("[%1]模拟数据转化完成").arg(simMappingContainer[currentobjFd].showName));
+        //给模拟器更新画布pixmap
+        auto [w,h]=currentSimulator->getFP()->calculationMinPixSize();
+        ui->rightContainerWidget->changeCanvasSize(w,h);
+        simMappingContainer[currentobjFd].isAnimationComplete=false;
+        ui->textBrowser->append(tr("所有准备完成,可进行放映[%1]").arg(simMappingContainer[currentobjFd].showName));
+    });
+
+    connect(this,&Widget::switchClickd,[this](){
+        if(currentSimulator->currentStatus()==Simulator::Status::HasModelData){
+            !ui->rightContainerWidget->isRunning()?
+                ui->rightContainerWidget->playAnimation():
+                ui->rightContainerWidget->stopAnimation();
+            ui->textBrowser->append(ui->rightContainerWidget->isRunning()?tr("已开始"):tr("已暂停"));
+        }else{
+            ui->textBrowser->append(tr("无数据,请先生成"));
+        }
+
     });
 
     ui->horizontalSlider->setValue(settings.animationInterval);
@@ -187,6 +205,7 @@ void Widget::changeSimulator(int objFd)
     currentobjFd=objFd;
     currentSimulator=Util::obj.GetObj(objFd);
     ui->rightContainerWidget->setSim(objFd);
+    alarm->set(currentSimulator->getFA());
     //相应的控制面板变更
     dataInputPane->setCurrentIndex(simMappingContainer[objFd].dataInputPaneIndex);
     dataInputPane->resize(dataInputPane->currentWidget()->size());
@@ -252,16 +271,9 @@ void Widget::keyReleaseEvent(QKeyEvent *event)
 
 void Widget::mousePressEvent(QMouseEvent *event)
 {
-    if(simMappingContainer[currentobjFd].stat==Unused){
-        ui->textBrowser->append(tr("请先模拟,产生绘图数据"));
-        return ;
-    }
     if(mode==Automatic){
         if(event->button()==Qt::LeftButton){
-            ui->rightContainerWidget->isRunning()?
-                ui->rightContainerWidget->playAnimation():
-                ui->rightContainerWidget->stopAnimation();
-            ui->textBrowser->append(ui->rightContainerWidget->isRunning()?tr("开始"):tr("暂停"));
+            emit switchClickd();
             event->accept();
         }
     }

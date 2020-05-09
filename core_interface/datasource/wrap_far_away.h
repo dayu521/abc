@@ -4,33 +4,25 @@
 
 #include"far_away.h"
 #include<memory>
-//#include<QThread>
 #include<QMutex>
-#include<QCoreApplication>
 
 class WrapFarAway : public FarAway
 {
 public:
     explicit WrapFarAway();
-
-//    static std::shared_ptr<QThread> getThread()
-//    {
-//        static auto thread=std::make_shared<QThread>();
-//        return thread;
-//    }
-
+    ~WrapFarAway()=default;
     // FarAway interface
 public:
-    virtual void doWork() override;
-    virtual bool setInput(const std::vector<Input> &) override;
-    virtual std::vector<Instruction> &getOutput() override;
-    virtual Status status() override
+    virtual void doWork() final override;
+    virtual bool setInput(std::vector<Input>) override;
+    virtual std::vector<Instruction> getOutput() override;
+    virtual FAStatus status() override
     {
         QMutexLocker L{&stMutex};
         return FarAway::status();
     }
 private:
-    QMutex mutex{};
+    QMutex dataMutex{};
     QMutex stMutex{};
 };
 

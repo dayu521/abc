@@ -7,7 +7,7 @@
 #include"rbtreesimulation.h"
 
 FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
-    animationTimer(new QTimer)
+    alarm(new Alarm(parent)),animationTimer(new QTimer)
 {
 
     pixContainer.append(std::make_shared<QPixmap>(this->width(),this->height()));
@@ -29,10 +29,6 @@ FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
         update();
     });
 
-    connect(this,&FlutteringWings::hasNoModelData,[this](){
-        sim->produceModelData();
-    });
-
     throttleTimer=new QTimer(this);
     throttleTimer->setSingleShot(true);
     connect(throttleTimer,&QTimer::timeout,[this](){
@@ -44,6 +40,8 @@ FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
         }
         emit elementsSizeChanged(true);
     });
+
+    connect(alarm,&Alarm::completed,this,&FlutteringWings::simulateCompleted);
 }
 
 FlutteringWings::~FlutteringWings()
@@ -134,14 +132,10 @@ void FlutteringWings::initMesgOnPix(const QString & s)
 
 void FlutteringWings::playAnimation()
 {
-    if(sim->currentStatus()!=Simulator::Status::CanPlay){
-        ;
-    }
-    else if(!animationTimer->isActive()){
+
+    if(!animationTimer->isActive())
         animationTimer->start();
-        return ;
-    }
-    emit canNotPlay();
+
 }
 
 void FlutteringWings::stopAnimation()
@@ -152,10 +146,8 @@ void FlutteringWings::stopAnimation()
 
 void FlutteringWings::prepareReplayAnimation()
 {
-    if(sim->currentStatus()!=Simulator::HasModelData){
-        emit hasNoModelData();
-    }
     currentFp->initModelData();
+    initMesgOnPix();
 }
 
 void FlutteringWings::setInterval(int millisecond_)
@@ -171,7 +163,8 @@ void FlutteringWings::setSim(int which_)
     else if(currentSimIndex==which_)
         ;
     else{
-        saveStatus(currentSimIndex);       
+        if(currentSimIndex>=0)
+            saveStatus(currentSimIndex);
         applyStatus(which_);
         update();
     }
@@ -195,6 +188,8 @@ void FlutteringWings::applyStatus(int which_)
     pix=pixContainer[mappingVec[which_].pixFd].get();
     //模拟器的Fp
     currentFp=sim->getFP().get();
+    //完成警报
+    alarm->set(sim->getFA());
 }
 
 void FlutteringWings::paintEvent(QPaintEvent *event)

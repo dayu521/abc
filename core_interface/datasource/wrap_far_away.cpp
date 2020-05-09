@@ -9,9 +9,9 @@ WrapFarAway::WrapFarAway()
 void WrapFarAway::doWork()
 {
     {
-        QMutexLocker L(&mutex);
+        QMutexLocker L(&dataMutex);
         stMutex.lock();
-        st=Status::Running;
+        st=FAStatus::Running;
         stMutex.unlock();
         try {
             for(const auto & f :input)
@@ -22,26 +22,26 @@ void WrapFarAway::doWork()
     }
 //    QCoreApplication::postEvent(nullptr,nullptr);
     stMutex.lock();
-    st=Status::GodJob;
+    st=FAStatus::GodJob;
     stMutex.unlock();
 }
 
-bool WrapFarAway::setInput(const std::vector<Input> & p)
+bool WrapFarAway::setInput(std::vector<Input> p)
 {
-    if(mutex.tryLock()){
-        input=p;
-        mutex.unlock();
+    if(dataMutex.tryLock()){
+        input=std::move(p);
+        dataMutex.unlock();
         stMutex.lock();
-        st=Status::Ready;
+        st=FAStatus::Ready;
         stMutex.unlock();
         return true;
     }
     return false;
 }
 
-std::vector<Instruction> &WrapFarAway::getOutput()
+std::vector<Instruction> WrapFarAway::getOutput()
 {
-    QMutexLocker L(&mutex);
+    QMutexLocker L(&dataMutex);
     return oupt;
 }
 

@@ -2,6 +2,8 @@
 #define ABSTRACTANIMATION_H
 
 #include"something.h"
+#include"datasource/far_away.h"
+#include<vector>
 
 class FreezePainter
 {
@@ -21,10 +23,10 @@ public:
     //是否播放完成
     virtual bool isBlow()=0;
 
-    //清除数据
-    virtual void clearAllDatas()=0;
+    //清除模型数据
+    virtual void clearAllModelDatas()=0;
 
-    //根据当前模拟数据,归位它的模型
+    //准备模型数据
     virtual void initModelData()=0;
 
     //改变元素大小
@@ -35,9 +37,15 @@ public:
     //返回当前可容纳所有内容的最小大小.例如,显示控件大小必定至少等于此大小(width,height)
     virtual std::tuple<Util::__width_int,Util::__height_int> calculationMinPixSize();
 
+    void setInput(std::vector<Instruction> v)
+    {
+        instructions=std::move(v);
+    }
+
 protected:
     int current{0};
     int all{0};
+    std::vector<Instruction> instructions{};
 };
 
 #endif // ABSTRACTANIMATION_H

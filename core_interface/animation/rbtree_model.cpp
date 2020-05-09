@@ -1,5 +1,6 @@
 #include "rbtree_model.h"
 #include<tuple>
+#include<iostream>
 
 RbtreeModel::RbtreeModel()
 {
@@ -13,7 +14,7 @@ RbtreeModel::~RbtreeModel()
 
 void RbtreeModel::nextNFrame(int i)
 {
-
+    std::cout<<"fuck you boys"<<std::endl;
 }
 
 void RbtreeModel::previousFrame(int i)
@@ -55,7 +56,7 @@ bool RbtreeModel::isBlow()
     return false;
 }
 
-void RbtreeModel::clearAllDatas()
+void RbtreeModel::clearAllModelDatas()
 {
 
 }

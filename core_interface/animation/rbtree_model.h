@@ -17,7 +17,7 @@ public:
     virtual bool acceptableScale(int factor) override;
     virtual std::tuple<Util::__width_int,Util::__height_int> calculationMinPixSize() override;
     virtual bool isBlow() override;
-    virtual void clearAllDatas() override;
+    virtual void clearAllModelDatas() override;
     virtual void initModelData() override;
 
 private:

@@ -5,6 +5,7 @@
 #include<memory>
 #include"register_type.h"
 #include"something.h"
+#include"alarm.h"
 
 class Simulator;
 
@@ -47,7 +48,7 @@ public:
 
     //切换模拟器
     void setSim( int which_);
-
+private:
     //保存状态
     void saveStatus(int which_);
 
@@ -59,17 +60,21 @@ signals:
     void canNotPlay();
     void elementsSizeChanged(bool);
     void playCompleted();
+    void simulateCompleted();
 //    void
 public slots :
     // QWidget interface
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
 private:
+
+    Alarm * alarm{};
+
     int currentPixIndex{0};
     QPixmap * pix{};
     QVector<std::shared_ptr<QPixmap>> pixContainer{};
 
-    int currentSimIndex{0};
+    int currentSimIndex{-1};
     std::shared_ptr<Simulator> sim{};
 
     FreezePainter * currentFp{nullptr};

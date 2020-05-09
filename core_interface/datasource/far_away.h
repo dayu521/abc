@@ -5,7 +5,7 @@
 #include<functional>
 #include<unordered_map>
 
-enum struct Status:unsigned int{
+enum struct FAStatus:unsigned int{
     Uncertain,
     Ready,
     Running,
@@ -26,6 +26,7 @@ struct Input
     int method{-1};
     int dataLength{0};
     int * data{nullptr};
+    ~Input(){ delete  data;}
 };
 
 using Instruction=InstructionTP<6>;
@@ -37,17 +38,17 @@ public:
 
     FarAway(const FarAway &)=delete ;
 
-    virtual ~FarAway();
+    virtual ~FarAway()=0;
 
     virtual void doWork()=0;
 
     //method+datalength+data....
     //  1      1     N
-    virtual bool setInput(const std::vector<Input>&)=0;
+    virtual bool setInput(std::vector<Input>)=0;
 
-    virtual std::vector<Instruction> & getOutput()=0;
+    virtual std::vector<Instruction> getOutput()=0;
 
-    virtual Status status()
+    virtual FAStatus status()
     {
         return st;
     }
@@ -56,7 +57,7 @@ protected:
     virtual void registerMethod(int methodKey_,Method m_);
 
 protected:
-    Status st{Status::Uncertain};
+    FAStatus st{FAStatus::Uncertain};
     std::vector<Input> input{};
     std::vector<Instruction> oupt{};
     std::unordered_map<int,Method> ms{};
