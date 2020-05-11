@@ -12,18 +12,14 @@ Rbtree::~Rbtree()
 
 }
 
-void Rbtree::setInputData(const std::vector<int> &v)
+void Rbtree::convertInput(const std::vector<int> &v)
 {
-//    dataSource->setInput(v);
-    st=Simulator::Status::UnCertain;
-    Input a={RbData::Insert,1000};
+    Input a={RbData::Insert,100};
+    for(int i=0;i<a.dataLength;i++)
+        a.data[i]=i;
+    dataSource->prepare();
     dataSource->setInput({a});
-}
-
-void Rbtree::clearModelData()
-{
-    animation->clearAllModelDatas();
-    st=Simulator::Status::Empty;
+    animation->pullInform({a});
 }
 
 void Rbtree::prepareReplay()

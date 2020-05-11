@@ -1,4 +1,4 @@
-#ifdef fuck
+
 #include "rbtreesimulation.h"
 #include<initializer_list>
 #include<QPainter>
@@ -14,7 +14,7 @@ RBtreeSimulation::~RBtreeSimulation()
     qDeleteAll(fakeNodeContainer);
     emptyTree(root);
     delete NIL;
-    delete fakeSentinelNode;
+    delete SentinelNode;
 }
 
 void RBtreeSimulation::produceActionData()
@@ -25,23 +25,23 @@ void RBtreeSimulation::produceActionData()
         if(insert(x))
             _qvectorForData<<x;
     }
-    currentActionNumber=_arrayForOrder.size();
+    currentActionNumber=instructions.size();
 }
 
 void RBtreeSimulation::clearActionData()
 {
-    _arrayForOrder.clear();
+    instructions.clear();
     emptyTree(root);
     root=NIL;
-    fakeSentinelNode->_prev=fakeSentinelNode->_next=fakeSentinelNode;
-    fakeRoot=fakeNIL;
-    fakeNIL->_parent=fakeNIL->_left=fakeNIL->_right=fakeNIL;
+    SentinelNode->_prev=SentinelNode->_next=SentinelNode;
+    Root=NIL;
+    NIL->_parent=NIL->_left=NIL->_right=NIL;
     fakeNodeContainer.remove(-9998);
     qDeleteAll(fakeNodeContainer);
     fakeNodeContainer.clear();
-    fakeNodeContainer.insert(fakeNIL->_value,fakeNIL);
+    fakeNodeContainer.insert(NIL->_value,NIL);
 
-    currentAction=0;
+    current=0;
     currentAnmIndex=0;
     currentAnmNumber=0;
 }
@@ -70,16 +70,16 @@ void RBtreeSimulation::currentSnapshot() const
     QFont font = pp.font();
     font.setPixelSize(_fontSize);
     pp.setFont(font);
-    drawAllElement(pp,fakeRoot);
+    drawAllElement(pp,Root);
     pp.end();
-    auto x=currentAction-1;
-    if(_arrayForOrder[x]._ope==Operator::Search)
+    auto x=current-1;
+    if(instructions[x]._ope==Operate::Search)
         drawCurrentNodeItem(_searchNodeItem);
 }
 
 int RBtreeSimulation::actionNumber() const
 {
-    return _arrayForOrder.size();
+    return instructions.size();
 }
 
 void RBtreeSimulation::nextAction()
@@ -105,11 +105,11 @@ void RBtreeSimulation::makeElementsBig(int factor)
 
 void RBtreeSimulation::prepareReplay()
 {
-    fakeRoot=fakeNIL;
+    Root=NIL;
 
-    fakeSentinelNode->_prev=fakeSentinelNode->_next=fakeSentinelNode;
+    SentinelNode->_prev=SentinelNode->_next=SentinelNode;
 
-    currentAction=0;
+    current=0;
     currentAnmIndex=0;
 }
 
@@ -119,13 +119,13 @@ void RBtreeSimulation::nextFrame()
         nextAction();
 //        hasAnimation=true;
     }else{
-        auto & action=_arrayForOrder[currentAction];
+        auto & action=instructions[current];
         switch (action._ope) {
-        case Operator::Search:{
+        case Operate::Search:{
             if(currentAnmIndex>=currentAnmNumber){
                 drawCurrentNodeItem(_searchNodeItem);
                 hasAnimation=false;
-                currentAction++;
+                current++;
             }
             QPainter pp(pix.get());
             pp.translate(0,_diameter/2);
@@ -159,7 +159,7 @@ void RBtreeSimulation::animationStart()
 
 bool RBtreeSimulation::isOver() const
 {
-    return currentAction>=currentActionNumber;
+    return current>=currentActionNumber;
 }
 
 void RBtreeSimulation::searchANM()
@@ -173,14 +173,14 @@ void RBtreeSimulation::initialTree()
     NIL->color=Black;
     NIL->parent=NIL->left=NIL->right=NIL;
 
-    fakeSentinelNode=new FakeNode(-9999);
-    fakeSentinelNode->_prev=fakeSentinelNode->_next=fakeSentinelNode;
+    SentinelNode=new ModelNode(-9999);
+    SentinelNode->_prev=SentinelNode->_next=SentinelNode;
 
-    fakeRoot=fakeNIL=new FakeNode(-9998);
-    fakeNIL->color=Black;
-    fakeNIL->_parent=fakeNIL->_left=fakeNIL->_right=fakeNIL;
+    Root=NIL=new ModelNode(-9998);
+    NIL->color=Black;
+    NIL->_parent=NIL->_left=NIL->_right=NIL;
 
-    fakeNodeContainer.insert(fakeNIL->_value,fakeNIL);
+    fakeNodeContainer.insert(NIL->_value,NIL);
 }
 
 void RBtreeSimulation::emptyTree(Node<int> *&root)
@@ -224,14 +224,14 @@ void RBtreeSimulation::rotationWithRightChild(Node<int> *&root)
 
 bool RBtreeSimulation::insert(int x)
 {
-    _arrayForOrder.append({Operator::NextValue,{0}});
+    instructions.append({Operate::NextValue,{0}});
     auto temp=root;
     //红黑树在调整时,其哨兵节点NIL的父节点在旋转过程中会改变,因此,在树进行一轮清空后,
     //此时root=NIL,即root.parent不再是NIL.所以这里不可以写成root->parent
     auto tempParent=NIL;
     while (temp!=NIL) {
         tempParent=temp;
-        _arrayForOrder.append({Operator::Search,{temp->item}});  //Search
+        instructions.append({Operate::Search,{temp->item}});  //Search
         if(temp->item>x){
             temp=temp->left;
         }
@@ -242,14 +242,14 @@ bool RBtreeSimulation::insert(int x)
             break;
     }
     if(temp!=NIL){
-        _arrayForOrder.append({Operator::Done,{0}});
+        instructions.append({Operate::Done,{0}});
         return false;
     }
     auto newNode=new Node<int>(x,tempParent,NIL,NIL);
     _nodeSize++;
     if(tempParent==NIL){
         root=newNode;
-        _arrayForOrder.append({Operator::Add,{x,tempParent->item}});
+        instructions.append({Operate::Add,{x,tempParent->item}});
     }
     else {
         if(x<tempParent->item){
@@ -258,10 +258,10 @@ bool RBtreeSimulation::insert(int x)
         else{
             tempParent->right=newNode;
         }
-        _arrayForOrder.append({Operator::Add,{x,tempParent->item}});
+        instructions.append({Operate::Add,{x,tempParent->item}});
     }
     insertionFixUpOfDoubleRed(newNode);
-    _arrayForOrder.append({Operator::Done,{1}});
+    instructions.append({Operate::Done,{1}});
     return true;
 }
 
@@ -273,23 +273,23 @@ void RBtreeSimulation::insertionFixUpOfDoubleRed(Node<int> *root)
                 root->parent->color = Black;
                 root->parent->parent->right->color = Black;
                 root->parent->parent->color = Red;
-                _arrayForOrder.append({Operator::ChangeColor,{root->parent->item,1,
+                instructions.append({Operate::ChangeColor,{root->parent->item,1,
                                                               root->parent->parent->right->item,1,
                                                               root->parent->parent->item,0}});  //record
                 root = root->parent->parent;
-                _arrayForOrder.append({Operator::Search,{root->item}}); //record
+                instructions.append({Operate::Search,{root->item}}); //record
             } else {
                 Node<int> *&gp = getParentReference(root->parent->parent);
                 if (root == root->parent->right) {   //case 2
                     root = root->parent;
-                    _arrayForOrder.append({Operator::Rotate,{getParentReference(root)->item,1}});
+                    instructions.append({Operate::Rotate,{getParentReference(root)->item,1}});
                     rotationWithRightChild(getParentReference(root));
                 }
-                _arrayForOrder.append({Operator::Rotate,{gp->item,0}});
+                instructions.append({Operate::Rotate,{gp->item,0}});
                 rotationWithLeftChild(gp);    //case 3
                 gp->color = Black;
                 gp->right->color = Red;
-                _arrayForOrder.append({Operator::ChangeColor,{gp->item,1,gp->right->item,0,-1,2}});
+                instructions.append({Operate::ChangeColor,{gp->item,1,gp->right->item,0,-1,2}});
                 break;
             }
         } else {
@@ -297,29 +297,29 @@ void RBtreeSimulation::insertionFixUpOfDoubleRed(Node<int> *root)
                 root->parent->color = Black;
                 root->parent->parent->left->color = Black;
                 root->parent->parent->color = Red;
-                _arrayForOrder.append({Operator::ChangeColor,{root->parent->item,1,
+                instructions.append({Operate::ChangeColor,{root->parent->item,1,
                                                               root->parent->parent->left->item,1,
                                                               root->parent->parent->item,0}});
                 root = root->parent->parent;
-                _arrayForOrder.append({Search,{root->item}});
+                instructions.append({Search,{root->item}});
             } else {
                 Node<int> *&gp = getParentReference(root->parent->parent);
                 if (root == root->parent->left) {
                     root = root->parent;
-                    _arrayForOrder.append({Rotate,{getParentReference(root)->item,0}});
+                    instructions.append({Rotate,{getParentReference(root)->item,0}});
                     rotationWithLeftChild(getParentReference(root));
                 }
-                _arrayForOrder.append({Rotate,{gp->item,1}});
+                instructions.append({Rotate,{gp->item,1}});
                 rotationWithRightChild(gp);
                 gp->color = Black;
                 gp->left->color = Red;
-                _arrayForOrder.append({ChangeColor,{gp->item,1,gp->left->item,0,-1,2}});
+                instructions.append({ChangeColor,{gp->item,1,gp->left->item,0,-1,2}});
                 break;
             }
         }
     }
     this->root->color = Black;
-    _arrayForOrder.append({Operator::ChangeColor,{this->root->item,1,-1,2,-1,2}});
+    instructions.append({Operate::ChangeColor,{this->root->item,1,-1,2,-1,2}});
 }
 
 void RBtreeSimulation::replace(Node<int> *y, Node<int> *x)
@@ -337,7 +337,7 @@ RBtreeSimulation::Node<int> *RBtreeSimulation::findMinValueNode(const Node<int> 
 {
     auto temp=root;
     while (temp->left!=NIL) {
-        _arrayForOrder.append({Operator::Search,{temp->item}});
+        instructions.append({Operate::Search,{temp->item}});
         temp=temp->left;
     }
     return const_cast<Node<int> *>(temp);
@@ -347,7 +347,7 @@ void RBtreeSimulation::remove(int v)
 {
     auto temp=root;
     while (temp!=NIL) {
-        _arrayForOrder.append({Operator::Search,{temp->item}});  //Search
+        instructions.append({Operate::Search,{temp->item}});  //Search
         if(temp->item>v){
             temp=temp->left;
         }
@@ -358,7 +358,7 @@ void RBtreeSimulation::remove(int v)
             break;
     }
     if(temp==NIL){
-        _arrayForOrder.append({Operator::Done,{0}});
+        instructions.append({Operate::Done,{0}});
         return ;
     }
     auto y=temp;
@@ -389,12 +389,12 @@ void RBtreeSimulation::remove(int v)
         }
         replace(y,y->right);
     }
-    _arrayForOrder.append({Operator::Substitute,{y->item,x->item,temp1}});
+    instructions.append({Operate::Substitute,{y->item,x->item,temp1}});
     delete y;
     y=nullptr;
     if(yOriginalColor==Black)
         removeFixUpOfLostOfBlack(x);
-    _arrayForOrder.append({Operator::Done,{1}});
+    instructions.append({Operate::Done,{1}});
 }
 
 void RBtreeSimulation::removeFixUpOfLostOfBlack(Node<int> *root)
@@ -405,85 +405,85 @@ void RBtreeSimulation::removeFixUpOfLostOfBlack(Node<int> *root)
             root_brother = root->parent->right;
             if (root_brother->color == Red) {	//case 1
                 Node<int> *&gp = getParentReference(root->parent);
-                _arrayForOrder.append({Operator::Rotate,{gp->item,1}});
+                instructions.append({Operate::Rotate,{gp->item,1}});
                 rotationWithRightChild(gp);
                 gp->color = Black;
                 gp->left->color = Red;
                 root_brother = root->parent->right;
-                _arrayForOrder.append({Operator::ChangeColor,{gp->item,1,gp->left->item,0,-1,2}});
+                instructions.append({Operate::ChangeColor,{gp->item,1,gp->left->item,0,-1,2}});
             }
             if (root_brother->left->color == Black
                     && root_brother->right->color == Black) {	//case 2
                 root_brother->color = Red;
-                _arrayForOrder.append({Operator::ChangeColor,{root_brother->item,0,-1,2,-1,2}});
+                instructions.append({Operate::ChangeColor,{root_brother->item,0,-1,2,-1,2}});
                 root = root->parent;
-                _arrayForOrder.append({Operator::Search,{root->item}});
+                instructions.append({Operate::Search,{root->item}});
             } else {
                 Node<int> * &root_parent = getParentReference(root->parent);
                 if (root_brother->right->color == Black) {	//case 3
-                    _arrayForOrder.append({Operator::Rotate,{root_brother->item,0}});
+                    instructions.append({Operate::Rotate,{root_brother->item,0}});
                     rotationWithLeftChild(root_parent->right);
                     root_parent->right->color = Black;
                     root_parent->right->right->color = Red;
                     root_brother=root_parent->right;
-                    _arrayForOrder.append({Operator::ChangeColor,{root_parent->right->item,1,root_parent->right->right->item,0,-1,2}});
+                    instructions.append({Operate::ChangeColor,{root_parent->right->item,1,root_parent->right->right->item,0,-1,2}});
                 }
-                _arrayForOrder.append({Operator::Rotate,{root_parent->item,1}});
+                instructions.append({Operate::Rotate,{root_parent->item,1}});
                 rotationWithRightChild(root_parent);	//case 4
                 root_parent->color = root_parent->left->color;
                 root_parent->left->color = Black;
                 root_parent->right->color = Black;
                 //利用枚举默认值也是和我们的规定值相等,否则下面要判断
-                _arrayForOrder.append({Operator::ChangeColor,{root_parent->item,root_parent->color,root_parent->left->item,1,root_parent->right->item,1}});
+                instructions.append({Operate::ChangeColor,{root_parent->item,root_parent->color,root_parent->left->item,1,root_parent->right->item,1}});
                 root = this->root;
-                _arrayForOrder.append({Operator::Search,{root->item}});
+                instructions.append({Operate::Search,{root->item}});
             }
         } else {
             root_brother = root->parent->left;
             if (root_brother->color == Red) {	//case 1
                 Node<int> *&gp = getParentReference(root->parent);
-                _arrayForOrder.append({Operator::Rotate,{gp->item,0}});
+                instructions.append({Operate::Rotate,{gp->item,0}});
                 rotationWithLeftChild(gp);
                 gp->color = Black;
                 gp->right->color = Red;
                 root_brother = root->parent->left;
-                _arrayForOrder.append({Operator::ChangeColor,{gp->item,1,gp->right->item,0,-1,2}});
+                instructions.append({Operate::ChangeColor,{gp->item,1,gp->right->item,0,-1,2}});
             }
             if (root_brother->left->color == Black
                     && root_brother->right->color == Black) {	//case 2
                 root_brother->color = Red;
-                _arrayForOrder.append({Operator::ChangeColor,{root_brother->item,0,-1,2,-1,2}});
+                instructions.append({Operate::ChangeColor,{root_brother->item,0,-1,2,-1,2}});
                 root = root->parent;
-                _arrayForOrder.append({Operator::Search,{root->item}});
+                instructions.append({Operate::Search,{root->item}});
             } else {
                 Node<int> * &root_parent = getParentReference(root->parent);
                 if (root_brother->left->color == Black) {	//case 3
-                    _arrayForOrder.append({Operator::Rotate,{getParentReference(root_brother)->item,1}});
+                    instructions.append({Operate::Rotate,{getParentReference(root_brother)->item,1}});
                     rotationWithRightChild(root_parent->left);
                     root_parent->left->color = Black;
                     root_parent->left->left->color = Red;
-                    _arrayForOrder.append({Operator::ChangeColor,{root_parent->left->item,1,root_parent->left->left->item,0,-1,2}});
+                    instructions.append({Operate::ChangeColor,{root_parent->left->item,1,root_parent->left->left->item,0,-1,2}});
                 }
-                _arrayForOrder.append({Operator::Rotate,{root_parent->item,0}});
+                instructions.append({Operate::Rotate,{root_parent->item,0}});
                 rotationWithLeftChild(root_parent);	//case 4
                 root_parent->color = root_parent->right->color;
                 root_parent->left->color = Black;
                 root_parent->right->color = Black;
-                _arrayForOrder.append({Operator::ChangeColor,{root_parent->item,root_parent->color,root_parent->left->item,1,root_parent->right->item,1}});
+                instructions.append({Operate::ChangeColor,{root_parent->item,root_parent->color,root_parent->left->item,1,root_parent->right->item,1}});
                 root = this->root;
-                _arrayForOrder.append({Operator::Search,{root->item}});
+                instructions.append({Operate::Search,{root->item}});
             }
         }
     }
     root->color = Black;
-    _arrayForOrder.append({Operator::ChangeColor,{root->item,1,-1,2,-1,2}});
+    instructions.append({Operate::ChangeColor,{root->item,1,-1,2,-1,2}});
 }
 
 void RBtreeSimulation::dispatchActionAndDraw()
 {
-    auto & action=_arrayForOrder[currentAction];
+    auto & action=instructions[current];
     switch (action._ope) {
-        case Operator::Search:{
+        case Operate::Search:{
                 auto x=search(action);
 //                drawCurrentNodeItem(x);
                 currentAnmNumber=10;
@@ -493,42 +493,42 @@ void RBtreeSimulation::dispatchActionAndDraw()
                 hasAnimation=true;
             }
             break;
-        case Operator::Add:
+        case Operate::Add:
             add(action);
             drawAllElement();
-            currentAction++;
+            current++;
             break;
-        case Operator::Rotate:
+        case Operate::Rotate:
             rotate(action);
             drawAllElement();
-            currentAction++;
+            current++;
             break;
-        case Operator::Substitute:
+        case Operate::Substitute:
             substitute(action);
             drawAllElement();
-            currentAction++;
+            current++;
             break;
-        case Operator::ChangeColor:{
+        case Operate::ChangeColor:{
                 recolorNodeItem(changeColor(action));
             }
-        currentAction++;
+        current++;
             break;
-        case Operator::NextValue:
+        case Operate::NextValue:
             showNextValue();
-            currentAction++;
+            current++;
             break;
-        case Operator::Done:
+        case Operate::Done:
             done(action);
             drawAllElement();
-            currentAction++;
+            current++;
             break;
     }
 }
 
 //深度优先
-void RBtreeSimulation::drawAllElement(QPainter &_painter, RBtreeSimulation::FakeNode *_nodeItem) const
+void RBtreeSimulation::drawAllElement(QPainter &_painter, RBtreeSimulation::ModelNode *_nodeItem) const
 {
-    if(_nodeItem!=fakeNIL){
+    if(_nodeItem!=NIL){
         drawAllElement(_painter,_nodeItem->_left);
         drawAllElement(_painter,_nodeItem->_right);
         //draw line
@@ -554,10 +554,10 @@ void RBtreeSimulation::drawAllElement() const
     QFont font = pp.font();
     font.setPixelSize(_fontSize);
     pp.setFont(font);
-    drawAllElement(pp,fakeRoot);
+    drawAllElement(pp,Root);
 }
 
-void RBtreeSimulation::drawCurrentNodeItem(RBtreeSimulation::FakeNode *_nodeItem) const
+void RBtreeSimulation::drawCurrentNodeItem(RBtreeSimulation::ModelNode *_nodeItem) const
 {
     pix->fill();
     QPainter pp(pix.get());
@@ -565,7 +565,7 @@ void RBtreeSimulation::drawCurrentNodeItem(RBtreeSimulation::FakeNode *_nodeItem
     QFont font = pp.font();
     font.setPixelSize(_fontSize);
     pp.setFont(font);
-    drawAllElement(pp,fakeRoot);
+    drawAllElement(pp,Root);
 
     QPainterPath myPath;
     myPath.addEllipse(QPoint(_nodeItem->x*_diameter/2,_nodeItem->y*_nodeLineHeight),_radius+5,_radius+5);
@@ -576,7 +576,7 @@ void RBtreeSimulation::drawCurrentNodeItem(RBtreeSimulation::FakeNode *_nodeItem
     pp.setPen(Qt::black);
 }
 
-void RBtreeSimulation::paintColor(RBtreeSimulation::FakeNode *root, QPainter &pp, int dx) const
+void RBtreeSimulation::paintColor(RBtreeSimulation::ModelNode *root, QPainter &pp, int dx) const
 {
     if(root==nullptr)
         return;
@@ -596,29 +596,29 @@ void RBtreeSimulation::animation()
 
 }
 
-RBtreeSimulation::FakeNode *RBtreeSimulation::search(RBtreeSimulation::Action &action)
+RBtreeSimulation::ModelNode *RBtreeSimulation::search(RBtreeSimulation::Instruction &action)
 {
     //保存当前正在查找的节点,在染色时会考虑相应变大一点
     _searchNodeItem=fakeNodeContainer.value(action.array[0]);
     return _searchNodeItem;
 }
 
-void RBtreeSimulation::add(RBtreeSimulation::Action &action)
+void RBtreeSimulation::add(RBtreeSimulation::Instruction &action)
 {
     auto _parentNode=fakeNodeContainer.value(action.array[1]);
-    FakeNode * _newNode=nullptr;
+    ModelNode * _newNode=nullptr;
     if(fakeNodeContainer.contains(action.array[0])){
         _newNode=fakeNodeContainer.value((action.array[0]));
-        _newNode->_left=fakeNIL;
-        _newNode->_right=fakeNIL;
+        _newNode->_left=NIL;
+        _newNode->_right=NIL;
         _newNode->_parent=_parentNode;
         _newNode->init();
     }else{
-        _newNode=new FakeNode(action.array[0],fakeNIL,fakeNIL,_parentNode);
+        _newNode=new ModelNode(action.array[0],NIL,NIL,_parentNode);
         fakeNodeContainer.insert(_newNode->_value,_newNode);
     }
-    if(_parentNode==fakeNIL)
-        fakeRoot=_newNode;
+    if(_parentNode==NIL)
+        Root=_newNode;
     else if(_parentNode->_value>_newNode->_value)
         _parentNode->_left=_newNode;
     else
@@ -627,7 +627,7 @@ void RBtreeSimulation::add(RBtreeSimulation::Action &action)
     fillPropertyInInsert(_newNode);
 }
 
-void RBtreeSimulation::rotate(RBtreeSimulation::Action &action)
+void RBtreeSimulation::rotate(RBtreeSimulation::Instruction &action)
 {
     auto _currentNodeItem=fakeNodeContainer.value(action.array[0]);
     if(action.array[1]==0)
@@ -637,10 +637,10 @@ void RBtreeSimulation::rotate(RBtreeSimulation::Action &action)
     setY();
 }
 
-Util::TupleWrapArray<RBtreeSimulation::FakeNode*,3> RBtreeSimulation::changeColor(RBtreeSimulation::Action &action)
+Util::TupleWrapArray<RBtreeSimulation::ModelNode*,3> RBtreeSimulation::changeColor(RBtreeSimulation::Instruction &action)
 {
     int i=0;
-    FakeNode * a[3]={};
+    ModelNode * a[3]={};
     while(i<3){
         auto colorValue=action.array[2*i+1];
         if(colorValue>1)
@@ -658,7 +658,7 @@ void RBtreeSimulation::showNextValue()
 
 }
 
-void RBtreeSimulation::substitute(RBtreeSimulation::Action &action)
+void RBtreeSimulation::substitute(RBtreeSimulation::Instruction &action)
 {
     auto y=fakeNodeContainer.value(action.array[0]);
     deleteNodeItemFromLinkedList(y);
@@ -670,8 +670,8 @@ void RBtreeSimulation::substitute(RBtreeSimulation::Action &action)
         yOriginal->_value=y->_value;
         fakeNodeContainer.insert(y->_value,yOriginal);
     }
-    if(y==fakeRoot)
-        fakeRoot=x;
+    if(y==Root)
+        Root=x;
     else if(y==y->_parent->_left)
         y->_parent->_left=x;
     else
@@ -681,12 +681,12 @@ void RBtreeSimulation::substitute(RBtreeSimulation::Action &action)
     delete y;
 }
 
-void RBtreeSimulation::done(RBtreeSimulation::Action &action)
+void RBtreeSimulation::done(RBtreeSimulation::Instruction &action)
 {
     Q_UNUSED(action)
 }
 
-void RBtreeSimulation::fillPropertyInInsert(RBtreeSimulation::FakeNode *_nodeItem)
+void RBtreeSimulation::fillPropertyInInsert(RBtreeSimulation::ModelNode *_nodeItem)
 {
     //insert value into linkedlist-ordered and update x coordinate
     insertNodeItemIntoLinkedList(_nodeItem);
@@ -694,10 +694,10 @@ void RBtreeSimulation::fillPropertyInInsert(RBtreeSimulation::FakeNode *_nodeIte
     setY();
 }
 
-void RBtreeSimulation::insertNodeItemIntoLinkedList(RBtreeSimulation::FakeNode *_nodeItem)
+void RBtreeSimulation::insertNodeItemIntoLinkedList(RBtreeSimulation::ModelNode *_nodeItem)
 {
-    FakeNode * _pCurrent=fakeSentinelNode->_prev;
-    while (_pCurrent!=fakeSentinelNode&&_nodeItem->_value<_pCurrent->_value) {
+    ModelNode * _pCurrent=SentinelNode->_prev;
+    while (_pCurrent!=SentinelNode&&_nodeItem->_value<_pCurrent->_value) {
         _pCurrent->x++;
         _pCurrent=_pCurrent->_prev;
     }
@@ -708,15 +708,15 @@ void RBtreeSimulation::insertNodeItemIntoLinkedList(RBtreeSimulation::FakeNode *
     _pCurrent->_next=_nodeItem;
 }
 
-void RBtreeSimulation::deleteNodeItemFromLinkedList(RBtreeSimulation::FakeNode *_nodeItem)
+void RBtreeSimulation::deleteNodeItemFromLinkedList(RBtreeSimulation::ModelNode *_nodeItem)
 {
-    if(_nodeItem==fakeNIL)
+    if(_nodeItem==NIL)
         return ;
     auto brokenPoint=_nodeItem->_prev;
     brokenPoint->_next=_nodeItem->_next;
     _nodeItem->_next->_prev=brokenPoint;
     brokenPoint=brokenPoint->_next;
-    while(brokenPoint!=fakeSentinelNode){
+    while(brokenPoint!=SentinelNode){
         brokenPoint->x--;
         brokenPoint=brokenPoint->_next;
     }
@@ -724,31 +724,31 @@ void RBtreeSimulation::deleteNodeItemFromLinkedList(RBtreeSimulation::FakeNode *
 
 void RBtreeSimulation::setY()
 {
-    FakeNode * temp=nullptr;
-    fakeRoot->color=Black;
-    fakeSentinelNode->y=-1;
-    fakeNIL->y=-1;
-    fakeNodeQueue.enqueue(fakeRoot);
+    ModelNode * temp=nullptr;
+    Root->color=Black;
+    SentinelNode->y=-1;
+    NIL->y=-1;
+    NodeQueue.enqueue(Root);
     int level=0;
-    int column=fakeNodeQueue.size();
-    while (fakeNodeQueue.size()>0) {
-        temp=fakeNodeQueue.dequeue();
+    int column=NodeQueue.size();
+    while (NodeQueue.size()>0) {
+        temp=NodeQueue.dequeue();
         column--;
         temp->y=level;
         temp->xParent=temp->_parent->x;
         temp->yParent=temp->_parent->y;
-        if(temp->_left!=fakeNIL)
-            fakeNodeQueue.enqueue(temp->_left);
-        if(temp->_right!=fakeNIL)
-            fakeNodeQueue.enqueue(temp->_right);
+        if(temp->_left!=NIL)
+            NodeQueue.enqueue(temp->_left);
+        if(temp->_right!=NIL)
+            NodeQueue.enqueue(temp->_right);
         if(column==0){
             level++;
-            column=fakeNodeQueue.size();
+            column=NodeQueue.size();
         }
     }
 }
 
-void RBtreeSimulation::rotationWithLeftChildForNodeItem(RBtreeSimulation::FakeNode *&root)
+void RBtreeSimulation::rotationWithLeftChildForNodeItem(RBtreeSimulation::ModelNode *&root)
 {
     auto left_child = root->_left;
 
@@ -762,7 +762,7 @@ void RBtreeSimulation::rotationWithLeftChildForNodeItem(RBtreeSimulation::FakeNo
     root = left_child;
 }
 
-void RBtreeSimulation::rotationWithRightChildForNodeItem(RBtreeSimulation::FakeNode *&root)
+void RBtreeSimulation::rotationWithRightChildForNodeItem(RBtreeSimulation::ModelNode *&root)
 {
     auto right_child = root->_right;
 
@@ -776,7 +776,7 @@ void RBtreeSimulation::rotationWithRightChildForNodeItem(RBtreeSimulation::FakeN
     root = right_child;
 }
 
-void RBtreeSimulation::recolorNodeItem(Util::TupleWrapArray<FakeNode *, 3> tuple_) const
+void RBtreeSimulation::recolorNodeItem(Util::TupleWrapArray<ModelNode *, 3> tuple_) const
 {
     QPainter pp(pix.get());
     pp.translate(0,_diameter/2);
@@ -789,4 +789,3 @@ void RBtreeSimulation::recolorNodeItem(Util::TupleWrapArray<FakeNode *, 3> tuple
     paintColor(c,pp);
 }
 
-#endif

@@ -6,7 +6,10 @@ class RbData : public WrapFarAway
 {
 public:
     RbData();
-    ~RbData();
+    ~RbData();    
+    // FarAway interface
+public:
+    virtual void prepare() override;
     //只有无作用域枚举可以自动类型转换为底层类型
     enum MethodA:int{Insert=0,Remove};
 private:
@@ -53,7 +56,7 @@ private:
                                             : child->parent->right;
     }
 
-    enum Operate : int{InsertO,Rotate,ChangeColor,Search,NextValue,Done,Substitute};
+    enum Operate : int{Search,Add,Rotate,ChangeColor,NextValue,Substitute,Done};
     /* 下面是Instruction规则的说明
      * 1.增加节点( Add)
      *      索引0:新节点值
@@ -82,7 +85,7 @@ private:
 private:
     void insert()
     {
-        auto & v=input[index];
+        auto & v=input[index];       
         for(int i=0;i<v.dataLength;i++)
             insert((v.data)[i]);
     }

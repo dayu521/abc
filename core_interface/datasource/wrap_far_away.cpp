@@ -13,6 +13,7 @@ void WrapFarAway::doWork()
         stMutex.lock();
         st=FAStatus::Running;
         stMutex.unlock();
+        output.clear();
         try {
             for(const auto & f :input)
                 ms.at(f.method)();

@@ -23,13 +23,15 @@ public:
 
     virtual ~Simulator();
     //设置输入
-    virtual void setInputData(const std::vector<int> &)=0;
+    virtual void setInputData(const std::vector<int> &);
+
+    virtual void convertInput(const std::vector<int> &)=0;
 
     //生成模拟数据
     virtual void produceModelData();
 
     //清除模拟数据
-    virtual void clearModelData();
+    void clearModelData();
 
     //准备重新放映
     virtual void prepareReplay()=0;

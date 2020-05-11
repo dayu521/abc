@@ -24,6 +24,7 @@ namespace Util {
 
     constexpr __factor_int factor=5;
 
+    //
     template <int N>
     struct InstructionTP
     {
@@ -32,6 +33,7 @@ namespace Util {
         bool isPartOfOther{false};
     };
 
+    //method+datalength+data....
     struct Input
     {
         int method{-1};

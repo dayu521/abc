@@ -13,15 +13,21 @@ Simulator::~Simulator()
 
 }
 
+void Simulator::setInputData(const std::vector<int> & v_)
+{
+    st=Simulator::Status::UnCertain;
+    convertInput(v_);
+}
+
 void Simulator::produceModelData()
 {
-    if(dataSource->status()==FAStatus::GodJob){
-        animation->setInput(dataSource->getOutput());
-        animation->initModelData();
-        st=Status::HasModelData;
+    if(dataSource->status()!=FAStatus::GodJob){
+        st=Status::UnCertain;
         return ;
     }
-    st=Status::UnCertain;
+    animation->setInput(dataSource->getOutput());
+    animation->initModelData();
+    st=Status::HasModelData;
 }
 
 void Simulator::clearModelData()

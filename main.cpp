@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     w.addMapping(
                 {
                      {
-                         {Util::objFd<Rbtree>},QStringLiteral("红黑树")
+                         {Util::objFd<Rbtree>},Util::name[Util::objFd<Rbtree>]
                      }/*,
                      {
                          {Util::objFd<DemoSim>},QStringLiteral("例子")

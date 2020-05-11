@@ -34,6 +34,8 @@ public:
 
     virtual std::vector<Instruction> getOutput()=0;
 
+    virtual void prepare();
+
     virtual FAStatus status()
     {
         return st;

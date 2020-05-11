@@ -91,9 +91,12 @@ void Widget::initAction()
 
     auto restart_Act=menu->addAction(tr("重新放映"));
     connect(restart_Act,&QAction::triggered,[this](){
-        ui->rightContainerWidget->prepareReplayAnimation();
-        simMappingContainer[currentobjFd].isAnimationComplete=false;
-        ui->rightContainerWidget->initMesgOnPix(tr("请开始重新进行放映"));
+        if(currentSimulator->currentStatus()!=Simulator::Status::Empty){
+            ui->rightContainerWidget->prepareReplayAnimation();
+            simMappingContainer[currentobjFd].isAnimationComplete=false;
+            ui->rightContainerWidget->initMesgOnPix(tr("请开始重新进行放映"));
+        }else
+            ui->textBrowser->append(tr("无数据,请先生成"));
 //        if(mode==Automatic)
 //            animationTimer->start();
     });
@@ -174,15 +177,14 @@ void Widget::prepare()
 
     //原始数据生成完成信号
     connect(alarm,&Alarm::completed,[this](){
-        ui->textBrowser->append(tr("[%1]原始数据生成完成").arg(simMappingContainer[currentobjFd].showName));
+        ui->textBrowser->append(tr("[%1]模型数据生成完成").arg(simMappingContainer[currentobjFd].showName));
         currentSimulator->clearModelData();
         currentSimulator->produceModelData();
-        ui->textBrowser->append(tr("[%1]模拟数据转化完成").arg(simMappingContainer[currentobjFd].showName));
+//        ui->textBrowser->append(tr("[%1]模拟数据转化完成").arg(simMappingContainer[currentobjFd].showName));
         //给模拟器更新画布pixmap
-        auto [w,h]=currentSimulator->getFP()->calculationMinPixSize();
-        ui->rightContainerWidget->changeCanvasSize(w,h);
+        ui->rightContainerWidget->preCheck();
         simMappingContainer[currentobjFd].isAnimationComplete=false;
-        ui->textBrowser->append(tr("所有准备完成,可进行放映[%1]").arg(simMappingContainer[currentobjFd].showName));
+//        ui->textBrowser->append(tr("所有准备完成,可进行放映[%1]").arg(simMappingContainer[currentobjFd].showName));
     });
 
     connect(this,&Widget::switchClickd,[this](){
@@ -198,6 +200,13 @@ void Widget::prepare()
 
     });
 
+    connect(ui->rightContainerWidget,&FlutteringWings::errorResult,[this](int fuck_){
+        if(fuck_&FlutteringWings::Ok)
+            ui->textBrowser->append(tr("播放器准备就绪"));
+        else
+            ui->textBrowser->append(tr("需要的画布大小超过最大大小"));
+    });
+
     ui->horizontalSlider->setValue(settings.animationInterval);
 }
 
@@ -210,9 +219,6 @@ void Widget::changeSimulator(int objFd)
     //相应的控制面板变更
     dataInputPane->setCurrentIndex(simMappingContainer[objFd].dataInputPaneIndex);
     dataInputPane->resize(dataInputPane->currentWidget()->size());
-
-    ui->rightContainerWidget->initMesgOnPix();
-    ui->rightContainerWidget->update();
 
     setWindowTitle(simMappingContainer[objFd].showName);
     showMsg();

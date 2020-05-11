@@ -18,6 +18,8 @@ namespace Util {
 
     inline const int numberOfobjFd=AlreadyRegisterTypes::NumberOfType;
 
+    inline const QString name[numberOfobjFd]={"红黑树"};
+
     struct ObjFD
     {
         int fd{0};     //不得已,不能是const

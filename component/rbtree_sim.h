@@ -10,8 +10,7 @@ public:
     virtual ~Rbtree();
     // Simulator interface
 public:
-    virtual void setInputData(const std::vector<int> &) override;
-    virtual void clearModelData() override;
+    virtual void convertInput(const std::vector<int> &) override;
     virtual void prepareReplay() override;
 };
 

@@ -5,6 +5,11 @@ FarAway::FarAway()
 
 }
 
+void FarAway::prepare()
+{
+
+}
+
 FarAway::~FarAway()
 {
 

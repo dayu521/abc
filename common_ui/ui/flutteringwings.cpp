@@ -4,13 +4,12 @@
 #include"animation/abstract_animation.h"
 #include"simulator.h"
 #include"something.h"
-#include"rbtreesimulation.h"
 
 FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
-    alarm(new Alarm(parent)),animationTimer(new QTimer)
+    animationTimer(new QTimer)
 {
 
-    pixContainer.append(std::make_shared<QPixmap>(this->width(),this->height()));
+//    pixContainer.append(std::make_shared<QPixmap>(this->width(),this->height()));
     pixContainer.append(std::make_shared<QPixmap>(Util::width,Util::height));
     pix=pixContainer[0].get();
 
@@ -34,14 +33,13 @@ FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
     connect(throttleTimer,&QTimer::timeout,[this](){
         currentFp->changeElementSize(factor);    //必定成功
         changeCanvasSize(wantedWidth,wantedHeight);     //必定成功
-        if(!animationTimer->isActive()){
+        if(!animationTimer->isActive()&&currentFp->isRunning()){
+            pix->fill();
             currentFp->currentSnapshot();
             update();
         }
         emit elementsSizeChanged(true);
     });
-
-    connect(alarm,&Alarm::completed,this,&FlutteringWings::simulateCompleted);
 }
 
 FlutteringWings::~FlutteringWings()
@@ -108,13 +106,15 @@ void FlutteringWings::changeCanvasSize(Util::__width_int w_,Util::__height_int h
 
 bool FlutteringWings::makeElementsBig(int factor)
 {
-    throttleTimer->stop();
-    if(!currentFp->acceptableScale(factor))
+    fuck=SizeError;
+    auto [accept,w,h]=currentFp->acceptableScale(factor);
+    if(!accept)
         return false;
+    if(w>Util::MAX_WIDTH||h>Util::MAX_HEIGHT)
+        return false;
+    fuck=Ok;
     this->factor=factor;
-    std::tie(wantedWidth,wantedHeight)=currentFp->calculationMinPixSize();
-    if(wantedWidth>Util::MAX_WIDTH&&wantedHeight>Util::MAX_HEIGHT)
-        return false;
+    std::tie(wantedWidth,wantedHeight)={w,h};
     throttleTimer->start(200);      //清除重置之前未完成的计时器，开始新计时
     return true;
 }
@@ -132,10 +132,9 @@ void FlutteringWings::initMesgOnPix(const QString & s)
 
 void FlutteringWings::playAnimation()
 {
-
-    if(!animationTimer->isActive())
+    if(!animationTimer->isActive()&&fuck&Ok)
         animationTimer->start();
-
+    emit canNotPlay();
 }
 
 void FlutteringWings::stopAnimation()
@@ -170,6 +169,22 @@ void FlutteringWings::setSim(int which_)
     }
 }
 
+void FlutteringWings::preCheck()
+{
+    fuck=UnCheck;
+    auto [w,h]=currentFp->getSize();
+    if(w>Util::MAX_WIDTH||h>Util::MAX_HEIGHT){
+            fuck|=SizeError;
+    }
+
+    if(fuck==UnCheck){
+        changeCanvasSize(w,h);
+        pix->fill();
+        fuck=Ok;
+    }else
+        emit errorResult(fuck);
+}
+
 void FlutteringWings::saveStatus(int which_)
 {
     mappingVec[which_].pixFd=currentPixIndex;
@@ -180,7 +195,7 @@ void FlutteringWings::applyStatus(int which_)
 {
     //模拟器下标
     currentSimIndex=which_;
-    //新模拟器
+    //获取模拟器
     sim=Util::obj.GetObj(mappingVec[which_].fd);
     //模拟器pixmap的下标
     currentPixIndex=mappingVec[which_].pixFd;
@@ -188,8 +203,13 @@ void FlutteringWings::applyStatus(int which_)
     pix=pixContainer[mappingVec[which_].pixFd].get();
     //模拟器的Fp
     currentFp=sim->getFP().get();
-    //完成警报
-    alarm->set(sim->getFA());
+    //设置画布
+    currentFp->setPix(pix);
+    pix->fill();
+    if(currentFp->isRunning())
+        currentFp->currentSnapshot();
+    else
+        initMesgOnPix(tr("切换到 %1").arg(Util::name[which_]));
 }
 
 void FlutteringWings::paintEvent(QPaintEvent *event)

@@ -48,6 +48,11 @@ public:
 
     //切换模拟器
     void setSim( int which_);
+
+    void preCheck();
+
+    enum CheckResult{UnCheck=0x0,Ok=0x1,SizeError=0x2,OtherError=0x4};
+
 private:
     //保存状态
     void saveStatus(int which_);
@@ -58,17 +63,15 @@ private:
 signals:
     void hasNoModelData();
     void canNotPlay();
+    void errorResult(int r);
     void elementsSizeChanged(bool);
     void playCompleted();
-    void simulateCompleted();
 //    void
 public slots :
     // QWidget interface
 protected:
     virtual void paintEvent(QPaintEvent *event) override;
 private:
-
-    Alarm * alarm{};
 
     int currentPixIndex{0};
     QPixmap * pix{};
@@ -84,10 +87,11 @@ private:
     QTimer * animationTimer{nullptr};
     QTimer* throttleTimer{nullptr};     //节流计时器
 
+    Util::__factor_int factor{};
     Util::__width_int wantedWidth{};
     Util::__height_int wantedHeight{};
-    Util::__factor_int factor{};
 
+    int fuck{};
 };
 
 

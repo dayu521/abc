@@ -41,20 +41,6 @@ namespace Util {
         return std::make_tuple(arr...);
     }
 
-//    template <bool fuck,typename T1,typename T2>
-//    struct IfThenElse;
-
-//    template <typename T1,typename T2>
-//    struct IfThenElse<true,T1,T2>
-//    {
-//        typedef T1 Result;
-//    };
-//    template <typename T1,typename T2>
-//    struct IfThenElse<false,T1,T2>
-//    {
-//        typedef T2 Result;
-//    };
-
     template<typename T>
     struct DifferentType{};
 

@@ -22,6 +22,14 @@ RbData::~RbData()
     delete NIL;
 }
 
+void RbData::prepare()
+{
+    output.clear();
+    root=NIL;
+    NIL->color=Black;
+    NIL->parent=NIL->left=NIL->right=NIL;
+}
+
 void RbData::initialTree()
 {
     root=NIL=new Node<int>(-9998);
@@ -95,7 +103,7 @@ bool RbData::insert(int x)
 //    _nodeSize++;
     if(tempParent==NIL){
         root=newNode;
-        output.push_back({Operate::InsertO,{x,tempParent->item}});
+        output.push_back({Operate::Add,{x,tempParent->item}});
     }
     else {
         if(x<tempParent->item){
@@ -104,7 +112,7 @@ bool RbData::insert(int x)
         else{
             tempParent->right=newNode;
         }
-        output.push_back({Operate::InsertO,{x,tempParent->item}});
+        output.push_back({Operate::Add,{x,tempParent->item}});
     }
     insertionFixUpOfDoubleRed(newNode);
     output.push_back({Operate::Done,{1}});

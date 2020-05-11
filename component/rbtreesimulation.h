@@ -43,12 +43,12 @@ private:
     int _fontSize=_radius;      //字体大小
 
     //用于绘图的红黑树节点类
-    struct FakeNode;
-    FakeNode * fakeRoot;     //绘图红黑树的根节点
-    FakeNode * fakeNIL;     //绘图红黑树的哨兵节点
-    FakeNode * fakeSentinelNode;     //绘图节点形成的序链接链表的哨兵节点
-    QHash<int, FakeNode *> fakeNodeContainer;    //持有绘图树节点
-    QQueue<FakeNode *> fakeNodeQueue;       //用来进行层序遍历,然后设置每个绘图节点的y轴坐标
+    struct ModelNode;
+    ModelNode * Root;     //绘图红黑树的根节点
+    ModelNode * NIL;     //绘图红黑树的哨兵节点
+    ModelNode * SentinelNode;     //绘图节点形成的序链接链表的哨兵节点
+    QHash<int, ModelNode *> fakeNodeContainer;    //持有绘图树节点
+    QQueue<ModelNode *> NodeQueue;       //用来进行层序遍历,然后设置每个绘图节点的y轴坐标
 
     int currentAnmNumber=0;
     int currentAnmIndex=0;
@@ -63,10 +63,10 @@ private:
     QVector<int> _qvectorForData;       //插入节点值保留的副本
     int _indexForQvector=0;     //以上副本的索引
 
-    FakeNode * _searchNodeItem=nullptr;
+    ModelNode * _searchNodeItem=nullptr;
 
-    struct Action;
-    QVector<Action> _arrayForOrder;     //保存的一系列操作
+    struct Instruction;
+    QVector<Instruction> _arrayForOrder;     //保存的一系列操作
     //红黑树颜色
     enum Color { Red, Black };
     //红黑树节点
@@ -90,22 +90,22 @@ private:
     };
 
 
-    struct FakeNode {
+    struct ModelNode {
         int _value;
 
-        FakeNode *_left;
-        FakeNode *_right;
-        FakeNode *_parent;
+        ModelNode *_left;
+        ModelNode *_right;
+        ModelNode *_parent;
 
-        FakeNode *_next = nullptr;
-        FakeNode *_prev = nullptr;
+        ModelNode *_next = nullptr;
+        ModelNode *_prev = nullptr;
 
         int x = 0, y = -1;               // current coordinate
         int xParent = -1, yParent = -1;  // parent link coordinate
         Color color = Red;
 
-        FakeNode(int value, FakeNode *left = nullptr, FakeNode *right = nullptr,
-                 FakeNode *parent = nullptr)
+        ModelNode(int value, ModelNode *left = nullptr, ModelNode *right = nullptr,
+                 ModelNode *parent = nullptr)
             : _value(value), _left(left), _right(right), _parent(parent) {}
         void init(){
             _next=_prev=nullptr;
@@ -126,7 +126,7 @@ private:
         Done
     };
     //步骤
-    struct Action {
+    struct Instruction {
         Operator _ope;
         int array[6];
     };
@@ -178,34 +178,34 @@ private:
 
     //绘图
     void dispatchActionAndDraw();
-    void drawAllElement(QPainter &_painter, FakeNode *_nodeItem)const;
+    void drawAllElement(QPainter &_painter, ModelNode *_nodeItem)const;
     void drawAllElement()const;
-    void drawCurrentNodeItem(FakeNode * _nodeItem)const;
-    void paintColor(FakeNode *root,QPainter & pp,int dx=0)const;
-    void recolorNodeItem(Util::TupleWrapArray<FakeNode*,3> tuple_)const;
+    void drawCurrentNodeItem(ModelNode * _nodeItem)const;
+    void paintColor(ModelNode *root,QPainter & pp,int dx=0)const;
+    void recolorNodeItem(Util::TupleWrapArray<ModelNode*,3> tuple_)const;
 
     //动画
     void animation();
 
-    FakeNode *search(Action &action);
-    void add(Action &action);
-    void rotate(Action &action);
+    ModelNode *search(Instruction &action);
+    void add(Instruction &action);
+    void rotate(Instruction &action);
 
-    Util::TupleWrapArray<FakeNode*,3>  changeColor(Action &action);
+    Util::TupleWrapArray<ModelNode*,3>  changeColor(Instruction &action);
     void showNextValue();
-    void substitute(Action &action);
-    void done(Action &action);
+    void substitute(Instruction &action);
+    void done(Instruction &action);
 
-    void fillPropertyInInsert(FakeNode *_nodeItem);
-    void insertNodeItemIntoLinkedList(FakeNode *_nodeItem);
-    void deleteNodeItemFromLinkedList(FakeNode * _nodeItem);
+    void fillPropertyInInsert(ModelNode *_nodeItem);
+    void insertNodeItemIntoLinkedList(ModelNode *_nodeItem);
+    void deleteNodeItemFromLinkedList(ModelNode * _nodeItem);
     void setY();
 
-    void rotationWithLeftChildForNodeItem(FakeNode *&root);
-    void rotationWithRightChildForNodeItem(FakeNode *&root);
-    void replaceForNodeItem(FakeNode *y, FakeNode *x);
-    FakeNode *&getParentReferenceForNodeItem(FakeNode *child) {
-        if (child->_parent == fakeNIL) return this->fakeRoot;
+    void rotationWithLeftChildForNodeItem(ModelNode *&root);
+    void rotationWithRightChildForNodeItem(ModelNode *&root);
+    void replaceForNodeItem(ModelNode *y, ModelNode *x);
+    ModelNode *&getParentReferenceForNodeItem(ModelNode *child) {
+        if (child->_parent == NIL) return this->Root;
         return child == child->_parent->_left ? child->_parent->_left
                                               : child->_parent->_right;
     }
