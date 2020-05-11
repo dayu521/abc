@@ -1,5 +1,6 @@
 #include "simulator.h"
 #include<QWidget>
+#include<QPixmap>
 #include<QDebug>
 
 Simulator::Simulator()
