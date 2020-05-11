@@ -5,7 +5,7 @@
 class HanoiSimulation
 {
 public:
-    HanoiSimulation();
+    explicit HanoiSimulation();
 };
 
 #endif // HANOISIM_H

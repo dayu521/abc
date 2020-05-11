@@ -1,3 +1,4 @@
+#ifdef fuck
 #include "quicksortsim.h"
 #include<QWidget>
 #include<QPainter>
@@ -45,14 +46,13 @@ void QuickSortSimulation::prepareReplay()
 
 QString QuickSortSimulation::getName() const
 {
-    return "快速排序";
+    return QStringLiteral("快速排序");
 }
 
-void QuickSortSimulation::currentSnapshot(int n_) const
+void QuickSortSimulation::currentSnapshot() const
 {
-    Q_UNUSED(n_)
     pix->fill();
-    QPainter p(pix);
+    QPainter p(pix.get());
 //    auto f_=p.font();
 //    f_.setPixelSize(fontSize);
 //    p.setFont(f_);
@@ -69,9 +69,9 @@ int QuickSortSimulation::actionNumber() const
     return 10;
 }
 
-void QuickSortSimulation::nextAction(int n_)
+void QuickSortSimulation::nextAction()
 {
-    Q_UNUSED(n_)
+
 }
 
 QSize QuickSortSimulation::calculationMinPixSize()
@@ -130,3 +130,4 @@ int QuickSortSimulation::median3(QVector<int> &vec_, int left_, int right_)
     return vec_[left_+1];
 }
 
+#endif

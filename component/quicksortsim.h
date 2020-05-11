@@ -3,11 +3,12 @@
 #include"simulator.h"
 #include<QColor>
 
+#ifdef fuck
 //数据结构与算法分析c++描述第三版
 class QuickSortSimulation:public Simulator
 {
 public:
-    QuickSortSimulation();
+    explicit QuickSortSimulation();
     void quickSort(QVector<int> & v){quickSort(v,0,v.size()-1);}
     // Simulator interface
 public:
@@ -16,9 +17,9 @@ public:
     virtual void clearActionData() override;
     virtual void prepareReplay() override;
     virtual QString getName() const override;
-    virtual void currentSnapshot(int n_) const override;
+    virtual void currentSnapshot() const override;
     virtual int actionNumber() const override;
-    virtual void nextAction(int n_) override;
+    virtual void nextAction() override;
     virtual QSize calculationMinPixSize() override;
 private:
     int width=15;  //元素宽度
@@ -70,5 +71,5 @@ private:
     int median3(QVector<int> & vec_,int left_,int right);
 
 };
-
+#endif
 #endif // QUICKSORTSIM_H

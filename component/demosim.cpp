@@ -1,17 +1,11 @@
+#ifdef fuck
 #include "demosim.h"
 #include<QPixmap>
 #include<QWidget>
 #include<QPainter>
 
-DemoSim::DemoSim(QString name_):name(name_)
+DemoSim::DemoSim(QString name_)
 {
-
-    panel=new QWidget;
-    panel->setAutoFillBackground(true);
-    auto pp=panel->palette();
-    pp.setColor(QPalette::Background,Qt::red);
-    panel->resize(800,500);
-    panel->setPalette(pp);
     k=10;
 }
 
@@ -19,36 +13,12 @@ DemoSim::~DemoSim()
 {
 }
 
-QWidget *DemoSim::getUi()
+void DemoSim::currentSnapshot() const
 {
-    return panel;
-}
-
-QString DemoSim::getName() const
-{
-    return name;
-}
-
-void DemoSim::produceActionData()
-{
-
-}
-
-void DemoSim::clearActionData()
-{
-
-}
-
-void DemoSim::setPixmap(QPixmap * p_)
-{
-    pix=p_;
-}
-
-void DemoSim::currentSnapshot(int n_) const
-{
+    auto n_=this->n_;
     n_--;
     pix->fill(Qt::white);
-    QPainter p_(pix);
+    QPainter p_(pix.get());
     p_.setBrush(Qt::red);
     int y=n_/10;
     int x=n_-y*10;
@@ -67,33 +37,14 @@ QSize DemoSim::calculationMinPixSize()
     return {w_,h_};
 }
 
-void DemoSim::nextAction(int n_)
+void DemoSim::nextAction()
 {
     if(n_==0)
         pix->fill();
-    QPainter p_(pix);
+    QPainter p_(pix.get());
     p_.setBrush(Qt::red);
     int y=n_/10;
     int x=n_-y*10;
     p_.drawRect(x*_diameter,y*_diameter,_diameter,_diameter);
 }
-
-int DemoSim::actionNumber() const
-{
-    return 100;
-}
-
-void DemoSim::prepareReplay()
-{
-
-}
-
-void DemoSim::makeElementsBig(int factor)
-{
-    _diameter+=factor;
-}
-
-void DemoSim::setPixmapsize()
-{
-
-}
+#endif

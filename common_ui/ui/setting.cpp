@@ -24,6 +24,7 @@ SettingPane::SettingPane(Configuration &cfg, Widget *parent) :
 //        settings.canvasHeight=size_.height();
 //        ui->widthAndHeightLedit->setText(QString("%1:%2").arg(settings.canvasWidth).arg(settings.canvasHeight));
 //    });
+    setWindowTitle("dasfs发生的");
 }
 
 SettingPane::~SettingPane()
