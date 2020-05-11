@@ -23,7 +23,7 @@ public:
 
     void addMapping(std::initializer_list<SimMapping> s);
 
-    void changeCanvasSize(Util::__width_int w_,Util::__height_int h_,bool isForce_=false);
+    void changeCanvasSize(Util::__width_int w_,Util::__height_int h_,bool isForce_=true);
 
     bool makeElementsBig(int factor);
 

@@ -45,7 +45,7 @@ void RbtreeModel::currentSnapshot() const
     pp.setFont(font);
     drawAllElement(pp,Root);
     pp.end();
-    auto x=current;
+    auto x=current-1;
     if(instructions[x].action==Operate::Search)
         drawCurrentNodeItem(_searchNodeItem);
 }
@@ -58,7 +58,7 @@ void RbtreeModel::changeElementSize(int factor)
 
 std::tuple<Util::__width_int, Util::__height_int> RbtreeModel::getSize()
 {
-    return {(nodeNumber+1)*ele.radius,6};
+    return {(nodeNumber+1)*ele.radius,0};
 }
 
 std::tuple<bool, Util::__width_int, Util::__height_int> RbtreeModel::acceptableScale(int factor)

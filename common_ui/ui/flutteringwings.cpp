@@ -72,6 +72,7 @@ void FlutteringWings::changeCanvasSize(Util::__width_int w_,Util::__height_int h
         currentPixIndex=cur_+1;
         pix=pixContainer[cur_+1].get();
         resize(pix->size());
+        currentFp->setPix(pix);
         return ;
     }
     //否则为变大方向
@@ -102,6 +103,7 @@ void FlutteringWings::changeCanvasSize(Util::__width_int w_,Util::__height_int h
     currentPixIndex=cur_;
     pix=pixContainer[cur_].get();
     resize(pix->size());
+    currentFp->setPix(pix);
 }
 
 bool FlutteringWings::makeElementsBig(int factor)
