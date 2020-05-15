@@ -3,11 +3,20 @@
 #include<QWidget>
 #include<QTimer>
 #include<memory>
-#include"register_type.h"
-#include"something.h"
 #include"alarm.h"
 
+namespace Util {
+    using __width_int=int;
+    using __height_int=int;
+    using __factor_int=int;
+    struct ObjFD
+    {
+        int fd{0};     //不得已,不能是const
+    };
+}
+
 class Simulator;
+class FreezePainter;
 
 class FlutteringWings : public QWidget
 {
@@ -21,7 +30,7 @@ public:
         int pixFd{0};
     };
 
-    void addMapping(std::initializer_list<SimMapping> s);
+    void addCanvas(std::initializer_list<QSize> s);
 
     void changeCanvasSize(Util::__width_int w_,Util::__height_int h_,bool isForce_=true);
 

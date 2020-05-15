@@ -4,8 +4,33 @@
 #include<atomic>
 #include<functional>
 #include<unordered_map>
-#include"something.h"
+//#include"something.h"
 
+namespace Util {
+    template <int N>
+    struct InstructionTP
+    {
+        int action{-1};
+        int data[N]{};
+        bool isPartOfOther{false};
+    };
+
+    struct Input
+    {
+        int method{-1};
+        int dataLength{0};
+        int * data{nullptr};
+        Input(int method_,int datal_=0):method(method_),dataLength(datal_),data(new int[datal_]){}
+    };
+
+    template <typename InputIterator>
+    inline void clearAllInput(InputIterator begin_,InputIterator end_)
+    {
+        for(;begin_!=end_;begin_++)
+            delete [] (*begin_).data;
+    }
+
+}
 enum struct FAStatus:unsigned int{
     Uncertain,
     Ready,

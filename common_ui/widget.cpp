@@ -10,6 +10,7 @@
 #include<QKeyEvent>
 #include<QMenu>
 #include<QActionGroup>
+#include<QScreen>
 #include"animation/abstract_animation.h"
 
 Widget::Widget(QWidget *parent)
@@ -69,7 +70,8 @@ void Widget::initUI()
     dataInputPane->installEventFilter(this);
 
     ui->rightContainerWidget->setFocus();
-//    ui->rightContainerWidget->resize(800,800);
+    ui->rightContainerWidget->addCanvas({{qApp->primaryScreen()->size()}});
+//    ui->rightContainerWidget->resize(qApp->primaryScreen()->size());
 }
 
 void Widget::prepareNewSimulation()
@@ -276,7 +278,7 @@ void Widget::keyReleaseEvent(QKeyEvent *event)
         isctl=false;
 }
 
-void Widget::mousePressEvent(QMouseEvent *event)
+void Widget::mouseReleaseEvent(QMouseEvent *event)
 {
     if(mode==Automatic){
         if(event->button()==Qt::LeftButton){

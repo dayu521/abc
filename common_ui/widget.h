@@ -10,6 +10,9 @@
 #include"alarm.h"
 #include<QPointer>
 
+namespace Util {
+    inline constexpr __factor_int factor=5;
+}
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
 QT_END_NAMESPACE
@@ -69,7 +72,7 @@ protected:
     virtual void resizeEvent(QResizeEvent *event) override;
     virtual void keyPressEvent(QKeyEvent *event) override;
     virtual void keyReleaseEvent(QKeyEvent *event) override;
-    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
     virtual bool eventFilter(QObject *object, QEvent *event) override;
     virtual void contextMenuEvent(QContextMenuEvent *event) override;
     virtual void closeEvent(QCloseEvent *event) override;
@@ -80,6 +83,7 @@ private slots:
 signals:
     void changeElementsSize(int);
     void switchClickd();
+
 };
 
 #endif // WIDGET_H

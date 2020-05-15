@@ -84,15 +84,15 @@ p, li { white-space: pre-wrap; }
         <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="widgetResizable">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <widget class="FlutteringWings" name="rightContainerWidget">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>600</width>
-          <height>400</height>
+          <width>706</width>
+          <height>430</height>
          </rect>
         </property>
        </widget>

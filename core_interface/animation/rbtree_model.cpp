@@ -3,6 +3,7 @@
 #include<iostream>
 #include<QPainterPath>
 #include<QPainter>
+#include"far_away.h"
 
 RbtreeModel::RbtreeModel()
 {
@@ -65,7 +66,7 @@ std::tuple<bool, Util::__width_int, Util::__height_int> RbtreeModel::acceptableS
 {
     Elements temp{ele.diameter+factor};
     if(temp.radius>0&&temp.diameter>0&&temp.fontSize>0&&temp.nodeLineHeight>0){
-        return {true,(nodeNumber+1)*temp.radius,6};
+        return {true,(nodeNumber+1)*temp.radius,0};
     }
     return {false,0,0};
 }

@@ -58,4 +58,13 @@ protected:
     Status st{Status::Empty};
 };
 
+template<typename FP,typename WF>
+class CommonSim :public Simulator
+{
+public:
+    explicit CommonSim():Simulator(
+                             std::make_shared<std::enable_if_t<std::is_base_of_v<FreezePainter,FP>,FP>>(),
+                             std::make_shared<std::enable_if_t<std::is_base_of_v<WrapFarAway,WF>,WF>>()){};
+};
+
 #endif // SIMULATOR_H

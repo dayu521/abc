@@ -1,8 +1,8 @@
 #ifndef REGIESTER_TYPE_H
 #define REGIESTER_TYPE_H
 #include"rbtree_sim.h"
-#include"demosim.h"
-#include"quicksortsim.h"
+//#include"demosim.h"
+//#include"quicksortsim.h"
 #include"convenience.h"
 
 namespace Util {
@@ -18,12 +18,7 @@ namespace Util {
 
     inline const int numberOfobjFd=AlreadyRegisterTypes::NumberOfType;
 
-    inline const QString name[numberOfobjFd]={"红黑树"};
-
-    struct ObjFD
-    {
-        int fd{0};     //不得已,不能是const
-    };
+    inline const char * name[numberOfobjFd]={"红黑树"};
 
 }
 

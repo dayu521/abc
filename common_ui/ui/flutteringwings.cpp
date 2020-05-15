@@ -3,14 +3,14 @@
 #include<QPixmap>
 #include"animation/abstract_animation.h"
 #include"simulator.h"
-#include"something.h"
+#include"register_type.h"
 
 FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
     animationTimer(new QTimer)
 {
 
 //    pixContainer.append(std::make_shared<QPixmap>(this->width(),this->height()));
-    pixContainer.append(std::make_shared<QPixmap>(Util::width,Util::height));
+    pixContainer.append(std::make_shared<QPixmap>(800,500));
     pix=pixContainer[0].get();
 
     initMesgOnPix();
@@ -47,9 +47,10 @@ FlutteringWings::~FlutteringWings()
 
 }
 
-void FlutteringWings::addMapping(std::initializer_list<SimMapping> s)
+void FlutteringWings::addCanvas(std::initializer_list<QSize> s)
 {
-
+    for(const auto & i:s)
+        pixContainer.append(std::make_shared<QPixmap>(i));
 }
 
 //----<---current--->----
@@ -71,7 +72,7 @@ void FlutteringWings::changeCanvasSize(Util::__width_int w_,Util::__height_int h
     if(cur_<currentPixIndex){
         currentPixIndex=cur_+1;
         pix=pixContainer[cur_+1].get();
-        resize(pix->size());
+//        resize(pix->size());
         currentFp->setPix(pix);
         return ;
     }
@@ -82,27 +83,16 @@ void FlutteringWings::changeCanvasSize(Util::__width_int w_,Util::__height_int h
         else
             cur_++ ;
     }
-    if(cur_>=pixContainer.size()){
-        try {
-            if(pixContainer.size()>=Util::MAX_PIX_COUNTS)
-                throw std::range_error("Exceeding the maximum number");
-        }  catch (std::range_error & e) {
-            Util::logExcept(e.what(),Util::MAX_PIX_COUNTS);
-            return ;
-        }
-        if(!isForce_){
-            maxW_=pix->size().width()*2;
-            maxH_=pix->size().height()*2;
-        }else if(maxH_==0)//不会全为0,因为被第一个while循环过滤掉了
-            maxH_=maxW_;
-        else if(maxW_==0)
-            maxW_=maxH_;
-
-        pixContainer.append(std::make_shared<QPixmap>(maxW_,maxH_));
+    try {
+        if(cur_>=pixContainer.size())
+            throw std::range_error("Exceeding the maximum number");
+    }  catch (std::range_error & e) {
+        Util::logExcept(e.what());
+        cur_=pixContainer.size()-1;
     }
     currentPixIndex=cur_;
     pix=pixContainer[cur_].get();
-    resize(pix->size());
+//    resize(pix->size());
     currentFp->setPix(pix);
 }
 
