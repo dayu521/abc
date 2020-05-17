@@ -2,9 +2,10 @@
 #define ALARM_H
 
 #include<memory>
-#include"wrap_far_away.h"
 #include<QObject>
-#include"freeboy.h"
+
+class WrapFarAway;
+class FreeBoy;
 
 class Alarm : public QObject
 {  

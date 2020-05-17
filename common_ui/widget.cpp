@@ -43,6 +43,11 @@ void Widget::addMapping(std::initializer_list<WidgetMappingInfo> list_)
     changeSimulator((list_.begin())->fd);
 }
 
+void Widget::init()
+{
+
+}
+
 Widget::~Widget()
 {
     delete ui;
@@ -70,7 +75,9 @@ void Widget::initUI()
     dataInputPane->installEventFilter(this);
 
     ui->rightContainerWidget->setFocus();
-    ui->rightContainerWidget->addCanvas({{qApp->primaryScreen()->size()}});
+    ui->rightContainerWidget->setDefaultCanva(qApp->primaryScreen()->size());
+    ui->rightContainerWidget->addCanvas({{qApp->primaryScreen()->size()*2},{2000,1500},{3000,2000},{4000,3000}});
+
 //    ui->rightContainerWidget->resize(qApp->primaryScreen()->size());
 }
 
@@ -149,7 +156,47 @@ void Widget::initAction()
     connect(show_SideAct,&QAction::triggered,[this](bool checked){
             checked?ui->leftContainerWidget->show():ui->leftContainerWidget->hide();
     });
-    menu->addMenu(menu_sub1);
+
+    auto choseOne=menu->addMenu(tr("选择画布"));
+    auto actionG=new QActionGroup(choseOne);
+    actionG->setExclusive(true);
+    for(const auto & [size_,fd_]:ui->rightContainerWidget->getAllPixSizeFd()){
+        auto ac=actionG->addAction(tr("%1 * %2").
+                           arg(size_.width()).
+                           arg(size_.height()));
+        ac->setData(fd_);
+        ac->setCheckable(true);
+        canvasActionMapping.append({fd_,ac});
+    }
+    choseOne->addActions(actionG->actions());
+    /// 假定返回的列表元素是按照初始添加顺序,且fd从0开始!!
+//    canvasActionMapping=(actionG->actions()).toVector();
+    if(canvasActionMapping.size()>0)
+        std::get<1>(canvasActionMapping[0])->setChecked(true);
+    connect(actionG,&QActionGroup::triggered,[this](QAction* action_){
+        ui->rightContainerWidget->chosePix(action_->data().toInt());
+    });
+    connect(ui->rightContainerWidget,&FlutteringWings::choseSomeOnePixFD,[this](int fd_){
+        auto iterator=std::find_if(canvasActionMapping.begin(),canvasActionMapping.end(),[fd_](const std::tuple<int,QAction *> & item_){
+            auto [fd,ac]=item_;
+            if(fd==fd_){
+                ac->setChecked(true);
+                return true;
+            }
+            return false;
+        });
+        if(iterator==canvasActionMapping.end()){
+            //log...
+        }
+    });
+
+    auto fmk=menu->addAction(tr("解除封印!"));
+    fmk->setCheckable(true);
+    fmk->setChecked(true);
+    connect(fmk,&QAction::triggered,[this](bool checked){
+        !checked?ui->rightContainerWidgetWrap->setWidgetResizable(true):ui->rightContainerWidgetWrap->setWidgetResizable(false);
+        ui->rightContainerWidget->haveNoIdea();
+    });
 }
 
 void Widget::prepare()
@@ -171,10 +218,14 @@ void Widget::prepare()
     });
 
     connect(this,&Widget::changeElementsSize,[this](int x_){
-        if(currentSimulator->currentStatus()!=Simulator::Status::HasModelData)
-            ui->textBrowser->append(tr("无法进行当前大小的缩放"));
-        else if(ui->rightContainerWidget->makeElementsBig(x_))
-            ui->textBrowser->append(tr("能够进行当前大小的缩放"));
+//        if(currentSimulator->currentStatus()!=Simulator::Status::HasModelData)
+//            ui->textBrowser->append(tr("无法进行当前大小的缩放"));
+//        else if(ui->rightContainerWidget->makeElementsBig(x_))
+//            ui->textBrowser->append(tr("能够进行当前大小的缩放"));
+        auto s=ui->rightContainerWidget->size();
+        qDebug()<<s;
+        auto [w,h]=std::make_tuple(s.width(),s.height());
+        ui->rightContainerWidget->resize(w+50,h+50);
     });
 
     //原始数据生成完成信号

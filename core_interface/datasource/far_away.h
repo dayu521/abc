@@ -59,7 +59,7 @@ public:
 
     virtual std::vector<Instruction> getOutput()=0;
 
-    virtual void prepare();
+    virtual void prepareWorks();
 
     virtual FAStatus status()
     {

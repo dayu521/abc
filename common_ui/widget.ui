@@ -84,7 +84,7 @@ p, li { white-space: pre-wrap; }
         <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="widgetResizable">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <widget class="FlutteringWings" name="rightContainerWidget">
         <property name="geometry">

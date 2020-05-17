@@ -1,4 +1,4 @@
-
+#include<stdexcept>
 #include "wrap_far_away.h"
 
 WrapFarAway::WrapFarAway()

@@ -1,6 +1,6 @@
 #include "rbdata.h"
-//#include<QThread>
-#include<iostream>
+#include<queue>
+#include<stdexcept>
 
 RbData::RbData()
 {
@@ -22,12 +22,43 @@ RbData::~RbData()
     delete NIL;
 }
 
-void RbData::prepare()
+void RbData::prepareWorks()
 {
     output.clear();
     root=NIL;
     NIL->color=Black;
     NIL->parent=NIL->left=NIL->right=NIL;
+    yNodeNumber=0;
+}
+
+int RbData::treeMaxNumberY()
+{
+    Node<int> * temp=nullptr;
+    std::queue<Node<int> *> NodeQueue;
+    NodeQueue.push(root);
+    int level=0;
+    int column=NodeQueue.size();
+    while (NodeQueue.size()>0) {
+        temp=NodeQueue.front();
+        NodeQueue.pop();
+        column--;
+        if(temp->left!=NIL)
+            NodeQueue.push(temp->left);
+        if(temp->right!=NIL)
+            NodeQueue.push(temp->right);
+        if(column==0){
+            level++;
+            column=NodeQueue.size();
+        }
+    }
+    return level;
+}
+
+int RbData::treeMaxNumberX()
+{
+    if(status()==FAStatus::GodJob)
+        return yNodeNumber<0?0:yNodeNumber;
+    throw  std::runtime_error("cannot get value yNodeNumber");
 }
 
 void RbData::initialTree()
@@ -100,7 +131,7 @@ bool RbData::insert(int x)
         return false;
     }
     auto newNode=new Node<int>(x,tempParent,NIL,NIL);
-//    _nodeSize++;
+    yNodeNumber++;
     if(tempParent==NIL){
         root=newNode;
         output.push_back({Operate::Add,{x,tempParent->item}});
@@ -225,6 +256,7 @@ void RbData::remove(int v)
     output.push_back({Operate::Substitute,{y->item,x->item,temp1}});
     delete y;
     y=nullptr;
+    yNodeNumber--;
     if(yOriginalColor==Black)
         removeFixUpOfLostOfBlack(x);
     output.push_back({Operate::Done,{1}});

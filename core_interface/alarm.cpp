@@ -1,6 +1,7 @@
 
 #include "alarm.h"
-//#include<loki/Factory.h>
+#include"wrap_far_away.h"
+#include"freeboy.h"
 
 Alarm::Alarm(QObject *parent_):QObject(parent_)
 {

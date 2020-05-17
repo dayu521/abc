@@ -1,11 +1,11 @@
 #include "far_away.h"
-
+#include<stdexcept>
 FarAway::FarAway()
 {
 
 }
 
-void FarAway::prepare()
+void FarAway::prepareWorks()
 {
 
 }

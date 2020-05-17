@@ -18,13 +18,17 @@ public:
     virtual void nextNFrame(int i) override;
     virtual void previousFrame(int i) override;
     virtual void currentSnapshot() const override;
-    virtual void changeElementSize(int factor) override;
-    virtual std::tuple<typename Util::__width_int,typename Util::__height_int> getSize() override;
-    virtual std::tuple<bool,typename Util::__width_int,typename Util::__height_int> acceptableScale(int factor) override;
+    virtual std::tuple<Util::__width_int,Util::__height_int> getSize() override;
+    //w=(xNodeNumber+1)*ele.radius
+    //h=(yNodeNumber-1)*ele.nodeLineHeight+ele.diameter
+//    virtual void setElementNewSize(Util::__width_int,Util::__height_int) override;
     virtual bool isBlow() override;
     virtual void clearAllModelDatas() override;
     virtual void initModelData() override;
-    virtual void pullInform(const std::vector<Util::Input> &info_) override;
+
+    //特定于此类的函数
+public:
+    void setXYNodeNumber(int x_,int y_);
 
 private:
     struct Elements
@@ -114,7 +118,8 @@ private:
     double xLine=0;
     double yLine=0;
 
-    int nodeNumber{0};
+    int xNodeNumber{0};
+    int yNodeNumber{0};
 
 };
 

@@ -3,9 +3,10 @@
 #include "datasource/rbdata.h"
 #include<QRandomGenerator>
 
-Rbtree::Rbtree():Simulator(std::make_shared<RbtreeModel>(),std::make_shared<RbData>())
+Rbtree::Rbtree():rbtreeModel(std::make_shared<RbtreeModel>()),rbData(std::make_shared<RbData>())
 {
-
+    dataSource=rbData;
+    animation=rbtreeModel;
 }
 
 Rbtree::~Rbtree()
@@ -18,13 +19,20 @@ void Rbtree::convertInput(const std::vector<int> &v)
     Input a={RbData::Insert,100};
     for(int i=0;i<a.dataLength;i++)
         a.data[i]=QRandomGenerator::global()->generate()%500;
-    dataSource->prepare();
-    dataSource->setInput({a});
-    animation->pullInform({a});
+    rbData->prepareWorks();
+    rbData->setInput({a});
+//    rbtreeModel->pullOriginInput({a});
 }
 
 void Rbtree::prepareReplay()
 {
-    animation->initModelData();
+    rbtreeModel->initModelData();
+}
+
+void Rbtree::produceModelData()
+{
+    Simulator::produceModelData();
+    rbtreeModel->setXYNodeNumber(rbData->treeMaxNumberX(),rbData->treeMaxNumberY());
+    st=Status::HasModelData;
 }
 

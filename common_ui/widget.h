@@ -11,7 +11,7 @@
 #include<QPointer>
 
 namespace Util {
-    inline constexpr __factor_int factor=5;
+    inline constexpr __factor_int factor=1; //10%
 }
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
@@ -38,6 +38,8 @@ public:
         bool isAnimationComplete{false};    //动画是否结束
     };
     void addMapping(std::initializer_list<WidgetMappingInfo> list_);
+
+    void init();
 private:
     void loadCnf();
     void initUI();
@@ -62,6 +64,8 @@ private:
     QHash<int,WidgetMappingInfo> simMappingContainer;
 
     Alarm * alarm{};
+
+    QVector<std::tuple<int,QAction *>> canvasActionMapping{};
 
     bool isctl;
     Util::__factor_int factor{Util::factor};
