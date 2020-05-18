@@ -1,7 +1,18 @@
 #ifndef ABSTRACTANIMATION_H
 #define ABSTRACTANIMATION_H
-#include"something.h"
+//#include"something.h"
 #include<vector>
+namespace Util
+{
+    using __width_int=int;
+    using __height_int=int;
+    using __factor_int=int;
+
+    template <int N>
+    struct InstructionTP;
+
+    struct Input;
+}
 
 using Instruction=Util::InstructionTP<6>;
 class QPixmap;
@@ -30,13 +41,10 @@ public:
     //准备模型数据
     virtual void initModelData()=0;
 
-    //改变元素大小
-    virtual void changeElementSize(int factor)=0;
+    virtual std::tuple<Util::__width_int,Util::__height_int> getSize()=0;
 
-    virtual std::tuple<typename Util::__width_int,typename Util::__height_int> getSize()=0;
-
-    //返回此缩放是否接受,如果接受,接收后需要的width和height
-    virtual std::tuple<bool,typename Util::__width_int,typename Util::__height_int> acceptableScale(int factor)=0;
+//    //改变元素大小
+//    virtual void setElementNewSize(Util::__width_int,Util::__height_int)=0;
 
     void setInput(std::vector<Instruction> v)
     {
@@ -44,8 +52,6 @@ public:
         current=0;
         all=instructions.size();
     }
-
-    virtual void pullInform(const std::vector<Util::Input> &info_)=0;
 
     void setPix(QPixmap * p)
     {
@@ -55,6 +61,11 @@ public:
     bool isRunning()
     {
         return current>0;
+    }
+
+    bool canRunning()
+    {
+        return instructions.size()>0;
     }
 
 protected:

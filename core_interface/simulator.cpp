@@ -2,6 +2,11 @@
 #include"datasource/wrap_far_away.h"
 #include"animation/abstract_animation.h"
 
+Simulator::Simulator()
+{
+
+}
+
 Simulator::Simulator(std::shared_ptr<FreezePainter> fp_, std::shared_ptr<WrapFarAway> fa_):
     animation{fp_},dataSource{fa_}
 {

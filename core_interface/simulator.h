@@ -17,7 +17,9 @@ class Simulator
 public:
     enum class Status{Empty,UnCertain,HasModelData};
 public:
-    explicit Simulator(std::shared_ptr<FreezePainter> fp_, std::shared_ptr<WrapFarAway> fa_);
+    Simulator();    //选用默认构造函数,则需要在派生类中初始化基类成员.例如,派生类的构造函数体中.
+
+    Simulator(std::shared_ptr<FreezePainter> fp_, std::shared_ptr<WrapFarAway> fa_);
 
     Simulator(const Simulator &)=delete;
 
@@ -57,5 +59,14 @@ protected:
     std::shared_ptr<WrapFarAway> dataSource{};
     Status st{Status::Empty};
 };
+
+//template<typename FP,typename WF>
+//class CommonSim :public Simulator
+//{
+//public:
+//    CommonSim():Simulator(
+//                    std::make_shared<std::enable_if_t<std::is_base_of_v<FreezePainter,FP>,FP>>(),
+//                    std::make_shared<std::enable_if_t<std::is_base_of_v<WrapFarAway,WF>,WF>>()){};
+//};
 
 #endif // SIMULATOR_H

@@ -3,6 +3,7 @@
 #include<iostream>
 #include<QPainterPath>
 #include<QPainter>
+#include"far_away.h"
 
 RbtreeModel::RbtreeModel()
 {
@@ -50,24 +51,9 @@ void RbtreeModel::currentSnapshot() const
         drawCurrentNodeItem(_searchNodeItem);
 }
 
-void RbtreeModel::changeElementSize(int factor)
-{       
-    Elements temp{ele.diameter+factor};
-    ele=temp;
-}
-
 std::tuple<Util::__width_int, Util::__height_int> RbtreeModel::getSize()
 {
-    return {(nodeNumber+1)*ele.radius,0};
-}
-
-std::tuple<bool, Util::__width_int, Util::__height_int> RbtreeModel::acceptableScale(int factor)
-{
-    Elements temp{ele.diameter+factor};
-    if(temp.radius>0&&temp.diameter>0&&temp.fontSize>0&&temp.nodeLineHeight>0){
-        return {true,(nodeNumber+1)*temp.radius,6};
-    }
-    return {false,0,0};
+    return {(xNodeNumber+1)*ele.radius,(yNodeNumber-1)*ele.nodeLineHeight+ele.diameter};
 }
 
 bool RbtreeModel::isBlow()
@@ -97,14 +83,6 @@ void RbtreeModel::initModelData()
 
     current=0;
     currentAnmIndex=0;
-}
-
-void RbtreeModel::pullInform(const std::vector<Util::Input> &info_)
-{
-    nodeNumber=0;
-    for(const auto &i:info_)
-        if(i.method==0)
-            nodeNumber+=i.dataLength;
 }
 
 void RbtreeModel::dispatchActionAndDraw()
@@ -403,4 +381,10 @@ void RbtreeModel::rotationWithRightChildForNodeItem(RbtreeModel::ModelNode *&roo
 void RbtreeModel::replaceForNodeItem(RbtreeModel::ModelNode *y, RbtreeModel::ModelNode *x)
 {
 
+}
+
+void RbtreeModel::setXYNodeNumber(int x_, int y_)
+{
+    xNodeNumber=x_;
+    yNodeNumber=y_;
 }

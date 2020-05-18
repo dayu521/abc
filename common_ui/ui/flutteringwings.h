@@ -3,11 +3,20 @@
 #include<QWidget>
 #include<QTimer>
 #include<memory>
-#include"register_type.h"
-#include"something.h"
-#include"alarm.h"
+
+namespace Util {
+    using __width_int=int;
+    using __height_int=int;
+    using __factor_int=int;
+    struct ObjFD
+    {
+        int fd{0};     //不得已,不能是const
+    };
+}
 
 class Simulator;
+class FreezePainter;
+class Alarm;
 
 class FlutteringWings : public QWidget
 {
@@ -21,21 +30,28 @@ public:
         int pixFd{0};
     };
 
-    void addMapping(std::initializer_list<SimMapping> s);
+    void addCanvas(std::initializer_list<QSize> s);
 
-    void changeCanvasSize(Util::__width_int w_,Util::__height_int h_,bool isForce_=true);
+    QVector<std::tuple<QSize,int>> getAllPixSizeFd() const;
 
-    bool makeElementsBig(int factor);
+    void autoChangeCanvasSize(Util::__width_int w_,Util::__height_int h_,bool isForce_=true);
+
+    bool makeElementsBig(int factor=1/*10%*/);
 
     void initMesgOnPix(const QString & s="请先进行数据模拟,生成绘图数据");
 
+    void setDefaultCanva(QSize size_={800,500});
+
+    void haveNoIdea();
+
+    bool chosePix(int pfd_=0);
     //播放动画
     virtual void playAnimation();
 
     //停止动画
     virtual void stopAnimation();
 
-    bool isRunning()
+    bool isRunning() const
     {
         return animationTimer->isActive();
     }
@@ -66,6 +82,7 @@ signals:
     void errorResult(int r);
     void elementsSizeChanged(bool);
     void playCompleted();
+    void choseSomeOnePixFD(int fd_);
 //    void
 public slots :
     // QWidget interface
@@ -88,10 +105,16 @@ private:
     QTimer* throttleTimer{nullptr};     //节流计时器
 
     Util::__factor_int factor{};
-    Util::__width_int wantedWidth{};
-    Util::__height_int wantedHeight{};
+    Util::__width_int vWidth{};
+    Util::__height_int vHeight{};
+    Util::__width_int fpWidth{};
+    Util::__height_int fpHeight{};
 
     int fuck{};
+
+    // QWidget interface
+protected:
+    virtual void resizeEvent(QResizeEvent *event) override;
 };
 
 

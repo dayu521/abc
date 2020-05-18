@@ -9,10 +9,16 @@ public:
     ~RbData();    
     // FarAway interface
 public:
-    virtual void prepare() override;
+    virtual void prepareWorks() override;
+
+    int treeMaxNumberY();
+
+    int treeMaxNumberX();
+
     //只有无作用域枚举可以自动类型转换为底层类型
     enum MethodA:int{Insert=0,Remove};
 private:
+    //***********************************红黑树开始********************
     //红黑树颜色
     enum Color :int { Red, Black };
     //红黑树节点
@@ -55,6 +61,7 @@ private:
         return child == child->parent->left ? child->parent->left
                                             : child->parent->right;
     }
+    //****************************红黑树结束*****************
 
     enum Operate : int{Search,Add,Rotate,ChangeColor,NextValue,Substitute,Done};
     /* 下面是Instruction规则的说明
@@ -96,6 +103,8 @@ private:
         for(int i=0;i<v.dataLength;i++)
             remove((v.data)[i]);
     }
+
+    int yNodeNumber{0};
 };
 
 #endif // RBDATA_H

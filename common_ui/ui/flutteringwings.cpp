@@ -3,17 +3,14 @@
 #include<QPixmap>
 #include"animation/abstract_animation.h"
 #include"simulator.h"
+#include"register_type.h"
 #include"something.h"
+#include"alarm.h"
 
 FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
     animationTimer(new QTimer)
 {
-
-//    pixContainer.append(std::make_shared<QPixmap>(this->width(),this->height()));
-    pixContainer.append(std::make_shared<QPixmap>(Util::width,Util::height));
-    pix=pixContainer[0].get();
-
-    initMesgOnPix();
+//    initMesgOnPix();
     for(int i=0;i<Util::numberOfobjFd;i++)
         mappingVec.push_back({{i},0});
 
@@ -31,14 +28,15 @@ FlutteringWings::FlutteringWings(QWidget *parent) : QWidget(parent),
     throttleTimer=new QTimer(this);
     throttleTimer->setSingleShot(true);
     connect(throttleTimer,&QTimer::timeout,[this](){
-        currentFp->changeElementSize(factor);    //必定成功
-        changeCanvasSize(wantedWidth,wantedHeight);     //必定成功
-        if(!animationTimer->isActive()&&currentFp->isRunning()){
+        resize(fpWidth,fpHeight);
+        if(!animationTimer->isActive()){
             pix->fill();
-            currentFp->currentSnapshot();
+            if(currentFp->isRunning())
+                currentFp->currentSnapshot();
+            else
+                initMesgOnPix(tr("切换到 %1").arg(Util::name[currentSimIndex]));
             update();
         }
-        emit elementsSizeChanged(true);
     });
 }
 
@@ -47,14 +45,33 @@ FlutteringWings::~FlutteringWings()
 
 }
 
-void FlutteringWings::addMapping(std::initializer_list<SimMapping> s)
+void FlutteringWings::addCanvas(std::initializer_list<QSize> s)
 {
+    for(const auto & i:s){
+        pixContainer.append(std::make_shared<QPixmap>(i));
+        pixContainer.last()->fill();
+    }
+    if(pixContainer.size()<1)
+        return ;
+    std::sort(pixContainer.begin()+1,pixContainer.end(),[](const auto & x1,const auto & x2){
+        return x1->width()<x2->width()||x1->height()<x2->height();
+    });
+}
 
+QVector<std::tuple<QSize, int> > FlutteringWings::getAllPixSizeFd() const
+{
+    QVector<std::tuple<QSize, int>> v{};
+    int i=0;
+    for(const auto & x: pixContainer){
+        v.append({x->size(),i++});
+    }
+    return v;
 }
 
 //----<---current--->----
 //    left        right
-void FlutteringWings::changeCanvasSize(Util::__width_int w_,Util::__height_int h_, bool isForce_)
+//舍不得删除,暂时不用了
+void FlutteringWings::autoChangeCanvasSize(Util::__width_int w_,Util::__height_int h_, bool isForce_)
 {
     auto maxW_=w_;
     auto maxH_=h_;
@@ -71,7 +88,7 @@ void FlutteringWings::changeCanvasSize(Util::__width_int w_,Util::__height_int h
     if(cur_<currentPixIndex){
         currentPixIndex=cur_+1;
         pix=pixContainer[cur_+1].get();
-        resize(pix->size());
+//        resize(pix->size());
         currentFp->setPix(pix);
         return ;
     }
@@ -82,41 +99,31 @@ void FlutteringWings::changeCanvasSize(Util::__width_int w_,Util::__height_int h
         else
             cur_++ ;
     }
-    if(cur_>=pixContainer.size()){
-        try {
-            if(pixContainer.size()>=Util::MAX_PIX_COUNTS)
-                throw std::range_error("Exceeding the maximum number");
-        }  catch (std::range_error & e) {
-            Util::logExcept(e.what(),Util::MAX_PIX_COUNTS);
-            return ;
-        }
-        if(!isForce_){
-            maxW_=pix->size().width()*2;
-            maxH_=pix->size().height()*2;
-        }else if(maxH_==0)//不会全为0,因为被第一个while循环过滤掉了
-            maxH_=maxW_;
-        else if(maxW_==0)
-            maxW_=maxH_;
-
-        pixContainer.append(std::make_shared<QPixmap>(maxW_,maxH_));
+    try {
+        if(cur_>=pixContainer.size())
+            throw std::range_error("Exceeding the maximum number");
+    }  catch (std::range_error & e) {
+        Util::logExcept(e.what());
+        cur_=pixContainer.size()-1;
     }
     currentPixIndex=cur_;
     pix=pixContainer[cur_].get();
-    resize(pix->size());
+//    resize(pix->size());
     currentFp->setPix(pix);
 }
 
 bool FlutteringWings::makeElementsBig(int factor)
 {
     fuck=SizeError;
-    auto [accept,w,h]=currentFp->acceptableScale(factor);
-    if(!accept)
+//    auto [w,h]={width()*(10+factor)/10,width()*(10+factor)/10};
+    int w,h;
+//    if(!accept)
         return false;
     if(w>Util::MAX_WIDTH||h>Util::MAX_HEIGHT)
         return false;
     fuck=Ok;
     this->factor=factor;
-    std::tie(wantedWidth,wantedHeight)={w,h};
+    std::tie(vWidth,vHeight)={w,h};
     throttleTimer->start(200);      //清除重置之前未完成的计时器，开始新计时
     return true;
 }
@@ -132,11 +139,45 @@ void FlutteringWings::initMesgOnPix(const QString & s)
     p.drawText(50,100,"多使用鼠标右键上下文菜单");
 }
 
+void FlutteringWings::setDefaultCanva(QSize size_)
+{
+    if(pixContainer.size()==0)
+        pixContainer.append(std::make_shared<QPixmap>(size_));
+    else
+        pixContainer[0]=std::make_shared<QPixmap>(size_);
+    pix=pixContainer[0].get();
+    initMesgOnPix();
+}
+
+void FlutteringWings::haveNoIdea()
+{
+    if(currentFp->canRunning()){
+        chosePix(currentPixIndex);
+    }
+    else
+        resize(pix->size());
+//    chosePix(currentPixIndex);
+}
+
+bool FlutteringWings::chosePix(int pfd_)
+{
+    if(pfd_<0||pfd_>=pixContainer.size())
+        return false;
+    pix=pixContainer[pfd_].get();
+    currentFp->setPix(pix);
+    currentPixIndex=pfd_;
+    if(currentFp->canRunning())
+        std::tie(fpWidth,fpHeight)=currentFp->getSize();/*std::make_tuple(pix->width(),pix->height());*/
+    else
+        std::tie(fpWidth,fpHeight)=std::make_tuple(pix->width(),pix->height());
+    throttleTimer->start();
+    return true;
+}
+
 void FlutteringWings::playAnimation()
 {
-    if(!animationTimer->isActive()&&fuck&Ok)
+    if(!animationTimer->isActive())
         animationTimer->start();
-    emit canNotPlay();
 }
 
 void FlutteringWings::stopAnimation()
@@ -174,15 +215,12 @@ void FlutteringWings::setSim(int which_)
 void FlutteringWings::preCheck()
 {
     fuck=UnCheck;
-    auto [w,h]=currentFp->getSize();
-    if(w>Util::MAX_WIDTH||h>Util::MAX_HEIGHT){
-            fuck|=SizeError;
-    }
-
+    std::tie(fpWidth,fpHeight)=currentFp->getSize();
+    autoChangeCanvasSize(fpWidth,fpHeight);
+    chosePix(currentPixIndex);
     if(fuck==UnCheck){
-        changeCanvasSize(w,h);
-        pix->fill();
         fuck=Ok;
+        emit choseSomeOnePixFD(currentPixIndex);
     }else
         emit errorResult(fuck);
 }
@@ -207,7 +245,9 @@ void FlutteringWings::applyStatus(int which_)
     currentFp=sim->getFP().get();
     //设置画布
     currentFp->setPix(pix);
+    std::tie(fpWidth,fpHeight)=std::make_tuple(pix->width(),pix->height());
     pix->fill();
+    resize(pix->size());
     if(currentFp->isRunning())
         currentFp->currentSnapshot();
     else
@@ -218,6 +258,25 @@ void FlutteringWings::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
     QPainter p(this);
-    p.drawPixmap(0,0,*pix);
+    p.setWindow(0,0,fpWidth,fpHeight);
+    p.setViewport(0,0,vWidth,vHeight);
+    p.drawPixmap(0,0,*pix,0,0,fpWidth,fpHeight);
+}
+
+void FlutteringWings::resizeEvent(QResizeEvent *event)
+{
+    auto f=double(fpWidth)/fpHeight;
+    if(width()>fpWidth&&height()>fpHeight)
+        ;
+    else{
+        double pw=height()*f;
+        double ph=width()/f;
+        if(pw<width())
+            ph=height();
+        else
+            pw=width();
+        vWidth=pw;
+        vHeight=ph;
+    }
 }
 
