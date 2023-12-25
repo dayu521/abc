@@ -12,7 +12,7 @@
   - openSUSE TW上
     - 无要求,跟新滚动即可
   - 其他发行版
-    - 需要支持c++17,~~gcc是9.2.1版本;于openSUSE TW上测试,需要c++14以上~~
+    - 需要支持c++17,~~ gcc是9.2.1版本;于openSUSE TW上测试,需要c++14以上 ~~
     - qt版本5.13
 
 - Windows
@@ -25,9 +25,24 @@
 
 `loki`库来自`Modern C++ Design`,可以到[loki](http://loki-lib.sourceforge.net/)进行下载安装.
 
+> loki已经打不开,github上有人上传了代码 https://github.com/snaewe/loki-lib
+
 由于Linux下几乎没有发行版打包,并且如果你不想自行安装,可以到.pro文件移除掉~~`CONFIG +=loki_is_installed`~~
 
 不过只使用了其中的`Typelist`,就单独加入了几个相关头文件.(虽然代码量很少,不该这样的,之后会考虑`git submodule`)
+
+### 编译运行
+
+进入工程目录后执行以下命令
+
+```bash
+  mkdir build
+  cd build
+  qmake ../abc.pro
+  make
+```
+
+然后生成可执行文件`abc`
 
 ### 其他
 
